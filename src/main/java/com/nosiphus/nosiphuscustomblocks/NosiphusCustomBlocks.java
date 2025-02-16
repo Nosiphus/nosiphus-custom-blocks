@@ -3,7 +3,11 @@ package com.nosiphus.nosiphuscustomblocks;
 import com.nosiphus.nosiphuscustomblocks.world.item.ModCreativeModeTabs;
 import com.nosiphus.nosiphuscustomblocks.world.item.ModItems;
 import com.nosiphus.nosiphuscustomblocks.world.level.block.ModBlocks;
+import net.minecraft.world.item.DyeColor;
+import net.minecraft.world.item.DyeableArmorItem;
+import net.minecraft.world.item.DyeableLeatherItem;
 import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.client.event.RegisterColorHandlersEvent;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
@@ -36,6 +40,13 @@ public class NosiphusCustomBlocks {
         @SubscribeEvent
         public static void onClientSetup(FMLClientSetupEvent event) {
 
+        }
+
+        @SubscribeEvent
+        public static void registerItemColors(RegisterColorHandlersEvent.Item event) {
+            event.register(((itemStack, i) ->
+                    i > 0 ? -1 : ((DyeableLeatherItem)itemStack.getItem()).getColor(itemStack)),
+                    ModItems.BOW_TIE.get());
         }
 
     }

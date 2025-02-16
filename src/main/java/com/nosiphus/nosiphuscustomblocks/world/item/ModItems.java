@@ -1,7 +1,9 @@
 package com.nosiphus.nosiphuscustomblocks.world.item;
 
 import com.nosiphus.nosiphuscustomblocks.world.level.block.ModBlocks;
+import net.minecraft.world.item.ArmorItem;
 import net.minecraft.world.item.BlockItem;
+import net.minecraft.world.item.DyeableArmorItem;
 import net.minecraft.world.item.Item;
 import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.ForgeRegistries;
@@ -12,6 +14,10 @@ import static com.nosiphus.nosiphuscustomblocks.world.item.ModCreativeModeTabs.a
 public class ModItems {
 
     public static final DeferredRegister<Item> ITEMS = DeferredRegister.create(ForgeRegistries.ITEMS, "nosiphuscustomblocks");
+
+    //Bow Ties
+    public static final RegistryObject<ArmorItem> BOW_TIE = addToTab(ITEMS.register("bow_tie",
+            () -> new DyeableArmorItem(ModArmorMaterials.BOW_TIE, ArmorItem.Type.CHESTPLATE, new Item.Properties())));
 
     //Beige Stained Planks
     //To Be Added Later
