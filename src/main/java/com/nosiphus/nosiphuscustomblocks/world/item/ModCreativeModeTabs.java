@@ -24,7 +24,6 @@ public class ModCreativeModeTabs {
                     .icon(ModItems.WHITE_STAINED_PLANKS.get()::getDefaultInstance)
                     .displayItems((displayParams, output) ->
                             MOD_TAB_ITEMS.forEach(itemLike -> output.accept(itemLike.get())))
-                    .withSearchBar()
                     .build()
     );
 
