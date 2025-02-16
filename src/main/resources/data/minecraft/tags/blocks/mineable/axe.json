@@ -1,0 +1,12 @@
+{
+  "replace": false,
+  "values": [
+    { "id": "nosiphuscustomblocks:white_stained_button", "required": false },
+    { "id": "nosiphuscustomblocks:white_stained_fence", "required": false },
+    { "id": "nosiphuscustomblocks:white_stained_fence_gate", "required": false },
+    { "id": "nosiphuscustomblocks:white_stained_planks", "required": false },
+    { "id": "nosiphuscustomblocks:white_stained_pressure_plate", "required": false },
+    { "id": "nosiphuscustomblocks:white_stained_slab", "required": false },
+    { "id": "nosiphuscustomblocks:white_stained_stairs", "required": false }
+  ]
+}

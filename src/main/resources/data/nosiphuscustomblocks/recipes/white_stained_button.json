@@ -1,0 +1,12 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "group": "wooden_button",
+  "ingredients": [
+    {
+      "item": "nosiphuscustomblocks:white_stained_planks"
+    }
+  ],
+  "result": {
+    "item": "nosiphuscustomblocks:white_stained_button"
+  }
+}

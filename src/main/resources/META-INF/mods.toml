@@ -1,0 +1,29 @@
+modLoader="javafml"
+loaderVersion="[41,)"
+license="GPLv3"
+issueTrackerURL="https://github.com/Nosiphus/nosiphus-custom-blocks/issues"
+
+[[mods]]
+modId="nosiphuscustomblocks"
+version="2025.02.16"
+displayName="Nosiphus Custom Blocks"
+#updateJSONURL=""
+displayURL="https://www.nosiphus.com/"
+#logoFile="nosiphus_custom_blocks.png"
+credits="Nosiphus"
+authors="Nosiphus"
+description="Nosiphus Custom Blocks adds various random blocks to the game."
+
+[[dependencies.nosiphuscustomblocks]]
+modId="forge"
+mandatory=true
+versionRange="[47,)"
+ordering="NONE"
+side="BOTH"
+
+[[dependencies.nosiphuscustomblocks]]
+modId="minecraft"
+mandatory=true
+versionRange="[1.20.1,)"
+ordering="NONE"
+side="BOTH"
