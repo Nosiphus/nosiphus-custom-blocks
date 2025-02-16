@@ -1,6 +1,22 @@
 {
   "replace": false,
   "values": [
-    { "id": "nosiphuscustomblocks:white_stained_slab", "required": false }
+	{ "id": "nosiphuscustomblocks:beige_stained_slab", "required": false },
+    { "id": "nosiphuscustomblocks:white_stained_slab", "required": false },
+	{ "id": "nosiphuscustomblocks:orange_stained_slab", "required": false },
+	{ "id": "nosiphuscustomblocks:magenta_stained_slab", "required": false },
+	{ "id": "nosiphuscustomblocks:light_blue_stained_slab", "required": false },
+	{ "id": "nosiphuscustomblocks:yellow_stained_slab", "required": false },
+	{ "id": "nosiphuscustomblocks:lime_stained_slab", "required": false },
+	{ "id": "nosiphuscustomblocks:pink_stained_slab", "required": false },
+	{ "id": "nosiphuscustomblocks:gray_stained_slab", "required": false },
+	{ "id": "nosiphuscustomblocks:light_gray_stained_slab", "required": false },
+	{ "id": "nosiphuscustomblocks:cyan_stained_slab", "required": false },
+	{ "id": "nosiphuscustomblocks:purple_stained_slab", "required": false },
+	{ "id": "nosiphuscustomblocks:blue_stained_slab", "required": false },
+	{ "id": "nosiphuscustomblocks:brown_stained_slab", "required": false },
+	{ "id": "nosiphuscustomblocks:green_stained_slab", "required": false },
+	{ "id": "nosiphuscustomblocks:red_stained_slab", "required": false },
+	{ "id": "nosiphuscustomblocks:black_stained_slab", "required": false }
   ]
 }
