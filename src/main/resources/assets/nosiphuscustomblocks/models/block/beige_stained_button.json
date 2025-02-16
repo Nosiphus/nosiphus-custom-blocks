@@ -1,0 +1,6 @@
+{
+  "parent": "minecraft:block/button",
+  "textures": {
+    "texture": "nosiphuscustomblocks:block/beige_stained_planks"
+  }
+}

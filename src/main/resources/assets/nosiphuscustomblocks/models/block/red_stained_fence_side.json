@@ -1,0 +1,6 @@
+{
+  "parent": "minecraft:block/fence_side",
+  "textures": {
+    "texture": "nosiphuscustomblocks:block/red_stained_planks"
+  }
+}

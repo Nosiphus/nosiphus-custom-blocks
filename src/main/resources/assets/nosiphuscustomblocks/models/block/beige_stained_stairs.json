@@ -1,0 +1,8 @@
+{
+  "parent": "minecraft:block/stairs",
+  "textures": {
+    "bottom": "nosiphuscustomblocks:block/beige_stained_planks",
+    "top": "nosiphuscustomblocks:block/beige_stained_planks",
+    "side": "nosiphuscustomblocks:block/beige_stained_planks"
+  }
+}

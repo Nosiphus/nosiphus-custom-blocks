@@ -1,0 +1,6 @@
+{
+  "parent": "minecraft:block/button_inventory",
+  "textures": {
+    "texture": "nosiphuscustomblocks:block/magenta_stained_planks"
+  }
+}

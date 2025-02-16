@@ -1,0 +1,6 @@
+{
+  "parent": "minecraft:block/fence_post",
+  "textures": {
+    "texture": "nosiphuscustomblocks:block/red_stained_planks"
+  }
+}

@@ -1,0 +1,6 @@
+{
+  "parent": "minecraft:block/pressure_plate_up",
+  "textures": {
+    "texture": "nosiphuscustomblocks:block/light_gray_stained_planks"
+  }
+}

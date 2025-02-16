@@ -1,0 +1,6 @@
+{
+  "parent": "minecraft:block/fence_inventory",
+  "textures": {
+    "texture": "nosiphuscustomblocks:block/cyan_stained_planks"
+  }
+}

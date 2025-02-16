@@ -1,0 +1,8 @@
+{
+  "parent": "minecraft:block/outer_stairs",
+  "textures": {
+    "bottom": "nosiphuscustomblocks:block/gray_stained_planks",
+    "top": "nosiphuscustomblocks:block/gray_stained_planks",
+    "side": "nosiphuscustomblocks:block/gray_stained_planks"
+  }
+}

@@ -1,0 +1,6 @@
+{
+  "parent": "block/cube_all",
+  "textures": {
+    "all": "nosiphuscustomblocks:block/cyan_stained_planks"
+  }
+}
