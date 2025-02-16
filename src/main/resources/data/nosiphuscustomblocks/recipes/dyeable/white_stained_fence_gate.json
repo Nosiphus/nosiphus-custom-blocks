@@ -2,7 +2,7 @@
   "type": "minecraft:crafting_shapeless",
   "ingredients": [
     {
-      "item": "minecraft:oak_fence_gate"
+      "tag": "minecraft:fence_gates"
     },
     {
       "item": "minecraft:white_dye"

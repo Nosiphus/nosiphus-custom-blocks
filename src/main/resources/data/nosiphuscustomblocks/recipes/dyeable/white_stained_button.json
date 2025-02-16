@@ -2,7 +2,7 @@
   "type": "minecraft:crafting_shapeless",
   "ingredients": [
     {
-      "item": "minecraft:oak_button"
+      "tag": "minecraft:wooden_buttons"
     },
     {
       "item": "minecraft:white_dye"

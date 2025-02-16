@@ -2,7 +2,7 @@
   "type": "minecraft:crafting_shapeless",
   "ingredients": [
     {
-      "item": "minecraft:oak_stairs"
+      "tag": "minecraft:wooden_stairs"
     },
     {
       "item": "minecraft:white_dye"
