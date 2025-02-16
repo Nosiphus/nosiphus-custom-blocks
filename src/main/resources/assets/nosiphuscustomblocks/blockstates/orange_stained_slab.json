@@ -1,0 +1,13 @@
+{
+  "variants": {
+    "type=bottom": {
+      "model": "nosiphuscustomblocks:block/orange_stained_slab"
+    },
+    "type=double": {
+      "model": "nosiphuscustomblocks:block/orange_stained_planks"
+    },
+    "type=top": {
+      "model": "nosiphuscustomblocks:block/orange_stained_slab_top"
+    }
+  }
+}
