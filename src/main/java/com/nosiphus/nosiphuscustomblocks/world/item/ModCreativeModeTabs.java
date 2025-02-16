@@ -21,7 +21,7 @@ public class ModCreativeModeTabs {
     public static final RegistryObject<CreativeModeTab> YOGMOD = CREATIVE_TABS.register("nosiphuscustomblocks",
             () -> CreativeModeTab.builder()
                     .title(Component.translatable("itemGroup.nosiphuscustomblocks"))
-                    .icon(ModItems.WHITE_STAINED_PLANKS.get()::getDefaultInstance)
+                    .icon(ModItems.LIGHT_BLUE_STAINED_PLANKS.get()::getDefaultInstance)
                     .displayItems((displayParams, output) ->
                             MOD_TAB_ITEMS.forEach(itemLike -> output.accept(itemLike.get())))
                     .build()

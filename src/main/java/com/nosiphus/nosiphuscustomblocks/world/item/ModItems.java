@@ -14,7 +14,7 @@ public class ModItems {
     public static final DeferredRegister<Item> ITEMS = DeferredRegister.create(ForgeRegistries.ITEMS, "nosiphuscustomblocks");
 
     //Beige Stained Planks
-
+    //To Be Added Later
 
     //White Stained Planks
     public static final RegistryObject<BlockItem> WHITE_STAINED_PLANKS = addToTab(ITEMS.register("white_stained_planks",
@@ -271,9 +271,5 @@ public class ModItems {
             () -> new BlockItem(ModBlocks.BLACK_STAINED_PRESSURE_PLATE.get(), new Item.Properties())));
     public static final RegistryObject<BlockItem> BLACK_STAINED_BUTTON = addToTab(ITEMS.register("black_stained_button",
             () -> new BlockItem(ModBlocks.BLACK_STAINED_BUTTON.get(), new Item.Properties())));
-
-
-
-
 
 }

@@ -15,6 +15,7 @@ public class ModBlocks {
     public static final DeferredRegister<Block> BLOCKS = DeferredRegister.create(ForgeRegistries.BLOCKS, "nosiphuscustomblocks");
 
     //Beige Stained Planks
+    //To Be Added Later
 
     //White Stained Planks
     public static final RegistryObject<Block> WHITE_STAINED_PLANKS = BLOCKS.register("white_stained_planks",
