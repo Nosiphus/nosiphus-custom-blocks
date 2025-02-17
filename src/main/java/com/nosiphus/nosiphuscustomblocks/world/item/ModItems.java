@@ -5,11 +5,17 @@ import net.minecraft.world.item.ArmorItem;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.DyeableArmorItem;
 import net.minecraft.world.item.Item;
+import net.minecraft.world.level.block.Block;
+import net.minecraftforge.fml.ModList;
 import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.ForgeRegistries;
 import net.minecraftforge.registries.RegistryObject;
 
+import javax.annotation.Nullable;
+import java.util.function.Supplier;
+
 import static com.nosiphus.nosiphuscustomblocks.world.item.ModCreativeModeTabs.addToTab;
+import static com.nosiphus.nosiphuscustomblocks.world.item.ModCreativeModeTabs.addToTabOptional;
 
 public class ModItems {
 
@@ -20,7 +26,20 @@ public class ModItems {
             () -> new DyeableArmorItem(ModArmorMaterials.BOW_TIE, ArmorItem.Type.CHESTPLATE, new Item.Properties())));
 
     //Beige Stained Planks
-    //To Be Added Later
+    public static final RegistryObject<BlockItem> BEIGE_STAINED_PLANKS = addToTabOptional("yogmod", registerOptionalBlockItem("yogmod", "beige_stained_planks",
+            () -> new BlockItem(ModBlocks.BEIGE_STAINED_PLANKS.get(), new Item.Properties())));
+    public static final RegistryObject<BlockItem> BEIGE_STAINED_STAIRS = addToTabOptional("yogmod", registerOptionalBlockItem("yogmod", "beige_stained_stairs",
+            () -> new BlockItem(ModBlocks.BEIGE_STAINED_STAIRS.get(), new Item.Properties())));
+    public static final RegistryObject<BlockItem> BEIGE_STAINED_SLAB = addToTabOptional("yogmod", registerOptionalBlockItem("yogmod", "beige_stained_slab",
+            () -> new BlockItem(ModBlocks.BEIGE_STAINED_SLAB.get(), new Item.Properties())));
+    public static final RegistryObject<BlockItem> BEIGE_STAINED_FENCE = addToTabOptional("yogmod", registerOptionalBlockItem("yogmod", "beige_stained_fence",
+            () -> new BlockItem(ModBlocks.BEIGE_STAINED_FENCE.get(), new Item.Properties())));
+    public static final RegistryObject<BlockItem> BEIGE_STAINED_FENCE_GATE = addToTabOptional("yogmod", registerOptionalBlockItem("yogmod", "beige_stained_fence_gate",
+            () -> new BlockItem(ModBlocks.BEIGE_STAINED_FENCE_GATE.get(), new Item.Properties())));
+    public static final RegistryObject<BlockItem> BEIGE_STAINED_PRESSURE_PLATE = addToTabOptional("yogmod", registerOptionalBlockItem("yogmod", "beige_stained_pressure_plate",
+            () -> new BlockItem(ModBlocks.BEIGE_STAINED_PRESSURE_PLATE.get(), new Item.Properties())));
+    public static final RegistryObject<BlockItem> BEIGE_STAINED_BUTTON = addToTabOptional("yogmod", registerOptionalBlockItem("yogmod", "beige_stained_button",
+            () -> new BlockItem(ModBlocks.BEIGE_STAINED_BUTTON.get(), new Item.Properties())));
 
     //White Stained Planks
     public static final RegistryObject<BlockItem> WHITE_STAINED_PLANKS = addToTab(ITEMS.register("white_stained_planks",
@@ -277,5 +296,22 @@ public class ModItems {
             () -> new BlockItem(ModBlocks.BLACK_STAINED_PRESSURE_PLATE.get(), new Item.Properties())));
     public static final RegistryObject<BlockItem> BLACK_STAINED_BUTTON = addToTab(ITEMS.register("black_stained_button",
             () -> new BlockItem(ModBlocks.BLACK_STAINED_BUTTON.get(), new Item.Properties())));
+
+    //Methods
+    @Nullable
+    private static RegistryObject<BlockItem> registerOptionalBlockItem(String modID, String name, Supplier<BlockItem> blockItem) {
+        if(ModList.get().isLoaded(modID)) {
+            return ITEMS.register(name, blockItem);
+        }
+        return null;
+    }
+
+    @Nullable
+    private static RegistryObject<Item> registerOptionalItem(String modID, String name, Supplier<Item> item) {
+        if(ModList.get().isLoaded(modID)) {
+            return ITEMS.register(name, item);
+        }
+        return null;
+    }
 
 }

@@ -1,0 +1,14 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "ingredients": [
+    {
+      "tag": "minecraft:wooden_pressure_plates"
+    },
+    {
+      "item": "yogmod:beige_dye"
+    }
+  ],
+  "result": {
+    "item": "nosiphuscustomblocks:beige_stained_pressure_plate"
+  }
+}

@@ -1,0 +1,14 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "ingredients": [
+    {
+      "tag": "minecraft:planks"
+    },
+    {
+      "item": "yogmod:beige_dye"
+    }
+  ],
+  "result": {
+    "item": "nosiphuscustomblocks:beige_stained_planks"
+  }
+}

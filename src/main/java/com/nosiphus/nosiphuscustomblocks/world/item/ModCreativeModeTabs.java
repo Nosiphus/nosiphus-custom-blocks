@@ -5,9 +5,11 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.ItemLike;
+import net.minecraftforge.fml.ModList;
 import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.RegistryObject;
 
+import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Supplier;
@@ -30,6 +32,15 @@ public class ModCreativeModeTabs {
     public static <T extends Item> RegistryObject<T> addToTab(RegistryObject<T> itemLike) {
         MOD_TAB_ITEMS.add(itemLike);
         return itemLike;
+    }
+
+    @Nullable
+    public static <T extends Item> RegistryObject<T> addToTabOptional(String modID, RegistryObject<T> itemLike) {
+        if(ModList.get().isLoaded(modID)) {
+            MOD_TAB_ITEMS.add(itemLike);
+            return itemLike;
+        }
+        return null;
     }
 
 }
