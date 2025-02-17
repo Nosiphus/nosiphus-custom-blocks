@@ -1,7 +1,6 @@
 package com.nosiphus.nosiphuscustomblocks.world.level.block;
 
 import net.minecraft.world.flag.FeatureFlag;
-import net.minecraft.world.item.Item;
 import net.minecraft.world.level.block.*;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.properties.BlockSetType;

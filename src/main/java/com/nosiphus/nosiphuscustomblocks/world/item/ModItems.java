@@ -1,11 +1,8 @@
 package com.nosiphus.nosiphuscustomblocks.world.item;
 
 import com.nosiphus.nosiphuscustomblocks.world.level.block.ModBlocks;
-import net.minecraft.world.item.ArmorItem;
-import net.minecraft.world.item.BlockItem;
-import net.minecraft.world.item.DyeableArmorItem;
-import net.minecraft.world.item.Item;
-import net.minecraft.world.level.block.Block;
+import net.minecraft.world.food.FoodProperties;
+import net.minecraft.world.item.*;
 import net.minecraftforge.fml.ModList;
 import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.ForgeRegistries;
@@ -24,6 +21,28 @@ public class ModItems {
     //Bow Ties
     public static final RegistryObject<ArmorItem> BOW_TIE = addToTab(ITEMS.register("bow_tie",
             () -> new DyeableArmorItem(ModArmorMaterials.BOW_TIE, ArmorItem.Type.CHESTPLATE, new Item.Properties())));
+
+    //Foods
+    public static final RegistryObject<Item> CUSTARD = addToTab(ITEMS.register("custard",
+            () -> new BowlFoodItem(new Item.Properties().stacksTo(1)
+                    .food(new FoodProperties.Builder()
+                            .nutrition(6)
+                            .saturationMod(0.6f)
+                            .alwaysEat()
+                            .build()))));
+    public static final RegistryObject<Item> FISH_FINGER = addToTab(ITEMS.register("fish_finger",
+            () -> new Item(new Item.Properties()
+                    .food(new FoodProperties.Builder()
+                            .nutrition(5)
+                            .saturationMod(0.6f)
+                            .alwaysEat()
+                            .build()))));
+
+    //Sonic Screwdrivers
+    public static final RegistryObject<Item> BLUE_SONIC_SCREWDRIVER = addToTab(ITEMS.register("blue_sonic_screwdriver",
+            () -> new SwordItem(ModTiers.BLUE_SONIC_SCREWDRIVER, 3, -2.4F, new Item.Properties())));
+    public static final RegistryObject<Item> GREEN_SONIC_SCREWDRIVER = addToTab(ITEMS.register("green_sonic_screwdriver",
+            () -> new SwordItem(ModTiers.GREEN_SONIC_SCREWDRIVER, 3, -2.4F, new Item.Properties())));
 
     //Beige Stained Planks
     public static final RegistryObject<BlockItem> BEIGE_STAINED_PLANKS = addToTabOptional("yogmod", registerOptionalBlockItem("yogmod", "beige_stained_planks",

@@ -1,0 +1,6 @@
+{
+  "parent": "minecraft:item/handheld",
+  "textures": {
+    "layer0": "nosiphuscustomblocks:item/blue_sonic_screwdriver"
+  }
+}

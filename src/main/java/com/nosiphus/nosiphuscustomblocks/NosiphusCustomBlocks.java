@@ -3,8 +3,6 @@ package com.nosiphus.nosiphuscustomblocks;
 import com.nosiphus.nosiphuscustomblocks.world.item.ModCreativeModeTabs;
 import com.nosiphus.nosiphuscustomblocks.world.item.ModItems;
 import com.nosiphus.nosiphuscustomblocks.world.level.block.ModBlocks;
-import net.minecraft.world.item.DyeColor;
-import net.minecraft.world.item.DyeableArmorItem;
 import net.minecraft.world.item.DyeableLeatherItem;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.client.event.RegisterColorHandlersEvent;
