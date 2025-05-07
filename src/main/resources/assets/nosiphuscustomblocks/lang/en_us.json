@@ -1,5 +1,8 @@
 {
    
+  "block.nosiphuscustomblocks.labeled_tardis_door": "Labeled TARDIS Door",
+  "block.nosiphuscustomblocks.tardis_door": "TARDIS Door",
+
   "block.nosiphuscustomblocks.beige_stained_button": "Beige Stained Button",
   "block.nosiphuscustomblocks.beige_stained_fence": "Beige Stained Fence",
   "block.nosiphuscustomblocks.beige_stained_fence_gate": "Beige Stained Fence Gate",

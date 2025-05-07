@@ -44,6 +44,12 @@ public class ModItems {
     public static final RegistryObject<Item> GREEN_SONIC_SCREWDRIVER = addToTab(ITEMS.register("green_sonic_screwdriver",
             () -> new SwordItem(ModTiers.GREEN_SONIC_SCREWDRIVER, 3, -2.4F, new Item.Properties())));
 
+    //TARDIS
+    public static final RegistryObject<BlockItem> LABELED_TARDIS_DOOR = addToTab(ITEMS.register("labeled_tardis_door",
+            () -> new BlockItem(ModBlocks.LABELED_TARDIS_DOOR.get(), new Item.Properties())));
+    public static final RegistryObject<BlockItem> TARDIS_DOOR = addToTab(ITEMS.register("tardis_door",
+            () -> new BlockItem(ModBlocks.TARDIS_DOOR.get(), new Item.Properties())));
+
     //Beige Stained Planks
     public static final RegistryObject<BlockItem> BEIGE_STAINED_PLANKS = addToTabOptional("yogmod", registerOptionalBlockItem("yogmod", "beige_stained_planks",
             () -> new BlockItem(ModBlocks.BEIGE_STAINED_PLANKS.get(), new Item.Properties())));

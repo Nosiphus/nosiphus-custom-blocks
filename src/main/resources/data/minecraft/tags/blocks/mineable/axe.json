@@ -1,6 +1,8 @@
 {
   "replace": false,
   "values": [
+	{ "id": "nosiphuscustomblocks:labeled_tardis_door", "required": false },
+    { "id": "nosiphuscustomblocks:tardis_door", "required": false },
     { "id": "nosiphuscustomblocks:beige_stained_button", "required": false },
     { "id": "nosiphuscustomblocks:beige_stained_fence", "required": false },
     { "id": "nosiphuscustomblocks:beige_stained_fence_gate", "required": false },

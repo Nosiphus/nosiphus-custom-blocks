@@ -1,0 +1,6 @@
+{
+  "parent": "minecraft:item/generated",
+  "textures": {
+    "layer0": "nosiphuscustomblocks:item/tardis_door"
+  }
+}
