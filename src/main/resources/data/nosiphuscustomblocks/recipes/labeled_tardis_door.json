@@ -1,0 +1,21 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "group": "wooden_door",
+  "key": {
+    "#": {
+      "item": "nosiphuscustomblocks:blue_stained_planks"
+    },
+	"W": {
+      "item": "nosiphuscustomblocks:white_stained_planks"
+    }
+  },
+  "pattern": [
+    "##",
+    "#W",
+    "##"
+  ],
+  "result": {
+    "count": 3,
+    "item": "nosiphuscustomblocks:labeled_tardis_door"
+  }
+}

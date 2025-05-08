@@ -46,9 +46,9 @@ public class ModItems {
 
     //TARDIS
     public static final RegistryObject<BlockItem> LABELED_TARDIS_DOOR = addToTab(ITEMS.register("labeled_tardis_door",
-            () -> new BlockItem(ModBlocks.LABELED_TARDIS_DOOR.get(), new Item.Properties())));
+            () -> new DoubleHighBlockItem(ModBlocks.LABELED_TARDIS_DOOR.get(), new Item.Properties())));
     public static final RegistryObject<BlockItem> TARDIS_DOOR = addToTab(ITEMS.register("tardis_door",
-            () -> new BlockItem(ModBlocks.TARDIS_DOOR.get(), new Item.Properties())));
+            () -> new DoubleHighBlockItem(ModBlocks.TARDIS_DOOR.get(), new Item.Properties())));
 
     //Beige Stained Planks
     public static final RegistryObject<BlockItem> BEIGE_STAINED_PLANKS = addToTabOptional("yogmod", registerOptionalBlockItem("yogmod", "beige_stained_planks",
