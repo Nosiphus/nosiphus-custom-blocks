@@ -45,6 +45,8 @@ public class ModItems {
             () -> new SwordItem(ModTiers.GREEN_SONIC_SCREWDRIVER, 3, -2.4F, new Item.Properties())));
 
     //TARDIS
+    public static final RegistryObject<BlockItem> GOLDEN_ROUNDEL_BLOCK = addToTab(ITEMS.register("golden_roundel_block",
+            () -> new BlockItem(ModBlocks.GOLDEN_ROUNDEL_BLOCK.get(), new Item.Properties())));
     public static final RegistryObject<BlockItem> LABELED_TARDIS_DOOR = addToTab(ITEMS.register("labeled_tardis_door",
             () -> new DoubleHighBlockItem(ModBlocks.LABELED_TARDIS_DOOR.get(), new Item.Properties())));
     public static final RegistryObject<BlockItem> TARDIS_DOOR = addToTab(ITEMS.register("tardis_door",

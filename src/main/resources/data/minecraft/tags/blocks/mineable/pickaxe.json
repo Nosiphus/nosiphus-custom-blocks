@@ -1,0 +1,6 @@
+{
+  "replace": false,
+  "values": [
+	{ "id": "nosiphuscustomblocks:golden_roundel_block", "required": false }
+  ]
+}

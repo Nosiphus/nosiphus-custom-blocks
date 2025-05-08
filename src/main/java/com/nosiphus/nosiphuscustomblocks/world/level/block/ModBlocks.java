@@ -19,6 +19,8 @@ public class ModBlocks {
     public static final DeferredRegister<Block> BLOCKS = DeferredRegister.create(ForgeRegistries.BLOCKS, "nosiphuscustomblocks");
 
     //TARDIS
+    public static final RegistryObject<Block> GOLDEN_ROUNDEL_BLOCK = BLOCKS.register("golden_roundel_block",
+            () -> new Block(BlockBehaviour.Properties.copy(Blocks.GOLD_BLOCK)));
     public static final RegistryObject<Block> LABELED_TARDIS_DOOR = BLOCKS.register("labeled_tardis_door",
             () -> new DoorBlock(BlockBehaviour.Properties.copy(Blocks.OAK_DOOR), BlockSetType.OAK));
     public static final RegistryObject<Block> TARDIS_DOOR = BLOCKS.register("tardis_door",
