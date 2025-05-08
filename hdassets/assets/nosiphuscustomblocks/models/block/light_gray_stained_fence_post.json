@@ -1,0 +1,6 @@
+{
+	"parent": "minecraft:block/_bdc/fences/_all/fence_post",
+	"textures": {
+		"texture": "nosiphuscustomblocks:block/_bdc/fence_button_light_gray_stained"
+	}
+}

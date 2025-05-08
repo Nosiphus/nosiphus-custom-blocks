@@ -1,0 +1,7 @@
+{
+	"parent": "minecraft:block/_bdc/wood_button_pressed",
+	"textures": {
+		"particle": "nosiphuscustomblocks:block/brown_stained_planks",
+		"texture": "nosiphuscustomblocks:block/_bdc/fence_button_brown_stained"
+	}
+}

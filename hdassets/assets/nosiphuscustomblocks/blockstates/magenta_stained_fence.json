@@ -1,0 +1,17 @@
+{
+    "multipart": [
+        {   "apply": { "model": "nosiphuscustomblocks:block/magenta_stained_fence_post" }},
+        {   "when": { "north": "true" },
+            "apply": { "model": "nosiphuscustomblocks:block/_bdc/fences/magenta_stained/fence_side_ne" }
+        },
+        {   "when": { "east": "true" },
+            "apply": { "model": "nosiphuscustomblocks:block/_bdc/fences/magenta_stained/fence_side_ne", "y": 90 }
+        },
+        {   "when": { "south": "true" },
+            "apply": { "model": "nosiphuscustomblocks:block/_bdc/fences/magenta_stained/fence_side_sw" }
+        },
+        {   "when": { "west": "true" },
+            "apply": { "model": "nosiphuscustomblocks:block/_bdc/fences/magenta_stained/fence_side_sw", "y": 90 }
+        }
+    ]
+}

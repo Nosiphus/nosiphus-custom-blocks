@@ -1,0 +1,6 @@
+{
+	"parent": "minecraft:block/_bdc/fences/_all/wall_gate_crossbars_open_w",
+	"textures": {
+		"texture": "nosiphuscustomblocks:block/_bdc/fence_button_green_stained"
+	}
+}
