@@ -25,6 +25,8 @@ public class ModBlocks {
             () -> new DoorBlock(BlockBehaviour.Properties.copy(Blocks.OAK_DOOR), BlockSetType.OAK));
     public static final RegistryObject<Block> TARDIS_DOOR = BLOCKS.register("tardis_door",
             () -> new DoorBlock(BlockBehaviour.Properties.copy(Blocks.OAK_DOOR), BlockSetType.OAK));
+    public static final RegistryObject<Block> TARDIS_SLAB = BLOCKS.register("tardis_slab",
+            () -> new SlabBlock(BlockBehaviour.Properties.copy(Blocks.STONE_SLAB)));
 
     //Beige Stained Planks
     public static final RegistryObject<Block> BEIGE_STAINED_PLANKS = registerOptional("yogmod", "beige_stained_planks",

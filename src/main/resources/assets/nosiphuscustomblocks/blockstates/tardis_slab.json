@@ -1,0 +1,13 @@
+{
+  "variants": {
+    "type=bottom": {
+      "model": "nosiphuscustomblocks:block/tardis_slab"
+    },
+    "type=double": {
+      "model": "nosiphuscustomblocks:block/tardis_slab_full"
+    },
+    "type=top": {
+      "model": "nosiphuscustomblocks:block/tardis_slab_top"
+    }
+  }
+}
