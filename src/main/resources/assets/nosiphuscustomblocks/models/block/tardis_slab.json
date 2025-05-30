@@ -2,7 +2,7 @@
   "parent": "minecraft:block/slab",
   "textures": {
     "bottom": "nosiphuscustomblocks:block/tardis_slab",
-    "top": "nosiphuscustomblocks:block/tardis_slab",
-    "side": "nosiphuscustomblocks:block/tardis_slab_side"
+    "side": "nosiphuscustomblocks:block/tardis_slab_side",
+    "top": "nosiphuscustomblocks:block/tardis_slab"
   }
 }

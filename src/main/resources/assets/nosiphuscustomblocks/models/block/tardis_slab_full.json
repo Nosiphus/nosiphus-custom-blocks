@@ -1,6 +1,7 @@
 {
-  "parent": "block/cube_all",
+  "parent": "minecraft:block/cube_column",
   "textures": {
-    "all": "nosiphuscustomblocks:block/beige_stained_planks"
+    "end": "nosiphuscustomblocks:block/tardis_slab",
+    "side": "nosiphuscustomblocks:block/tardis_slab_side"
   }
 }
