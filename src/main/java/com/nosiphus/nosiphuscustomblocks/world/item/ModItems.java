@@ -18,7 +18,9 @@ public class ModItems {
 
     public static final DeferredRegister<Item> ITEMS = DeferredRegister.create(ForgeRegistries.ITEMS, "nosiphuscustomblocks");
 
-    //Bow Ties
+    //Fezzes and Bow Ties
+    public static final RegistryObject<ArmorItem> FEZ = addToTab(ITEMS.register("fez",
+            () -> new DyeableArmorItem(ModArmorMaterials.BOW_TIE, ArmorItem.Type.HELMET, new Item.Properties())));
     public static final RegistryObject<ArmorItem> BOW_TIE = addToTab(ITEMS.register("bow_tie",
             () -> new DyeableArmorItem(ModArmorMaterials.BOW_TIE, ArmorItem.Type.CHESTPLATE, new Item.Properties())));
 

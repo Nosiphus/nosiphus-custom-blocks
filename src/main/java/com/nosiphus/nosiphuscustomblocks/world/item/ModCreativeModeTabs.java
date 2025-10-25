@@ -20,7 +20,7 @@ public class ModCreativeModeTabs {
 
     public static final List<Supplier<? extends ItemLike>> MOD_TAB_ITEMS = new ArrayList<>();
 
-    public static final RegistryObject<CreativeModeTab> YOGMOD = CREATIVE_TABS.register("nosiphuscustomblocks",
+    public static final RegistryObject<CreativeModeTab> NOSIPHUSCUSTOMBLOCKS = CREATIVE_TABS.register("nosiphuscustomblocks",
             () -> CreativeModeTab.builder()
                     .title(Component.translatable("itemGroup.nosiphuscustomblocks"))
                     .icon(ModItems.LIGHT_BLUE_STAINED_PLANKS.get()::getDefaultInstance)

@@ -44,7 +44,7 @@ public class NosiphusCustomBlocks {
         public static void registerItemColors(RegisterColorHandlersEvent.Item event) {
             event.register(((itemStack, i) ->
                     i > 0 ? -1 : ((DyeableLeatherItem)itemStack.getItem()).getColor(itemStack)),
-                    ModItems.BOW_TIE.get());
+                    ModItems.FEZ.get(), ModItems.BOW_TIE.get());
         }
 
     }
