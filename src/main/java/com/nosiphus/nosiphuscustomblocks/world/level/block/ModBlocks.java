@@ -28,6 +28,10 @@ public class ModBlocks {
     public static final RegistryObject<Block> TARDIS_SLAB = BLOCKS.register("tardis_slab",
             () -> new SlabBlock(BlockBehaviour.Properties.copy(Blocks.STONE_SLAB)));
 
+    //Other
+    public static final RegistryObject<Block> SEA_LANTERN_CEILING_LIGHT = BLOCKS.register("sea_lantern_ceiling_light",
+            () -> new SeaLanternCeilingLightBlock(BlockBehaviour.Properties.copy(Blocks.SEA_LANTERN)));
+
     //Beige Stained Planks
     public static final RegistryObject<Block> BEIGE_STAINED_PLANKS = registerOptional("yogmod", "beige_stained_planks",
             () -> new Block(BlockBehaviour.Properties.copy(Blocks.OAK_PLANKS)));

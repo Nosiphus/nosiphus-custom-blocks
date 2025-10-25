@@ -56,6 +56,10 @@ public class ModItems {
     public static final RegistryObject<BlockItem> TARDIS_SLAB = addToTab(ITEMS.register("tardis_slab",
             () -> new BlockItem(ModBlocks.TARDIS_SLAB.get(), new Item.Properties())));
 
+    //Other
+    public static final RegistryObject<BlockItem> SEA_LANTERN_CEILING_LIGHT = addToTab(ITEMS.register("sea_lantern_ceiling_light",
+            () -> new BlockItem(ModBlocks.SEA_LANTERN_CEILING_LIGHT.get(), new Item.Properties())));
+
     //Beige Stained Planks
     public static final RegistryObject<BlockItem> BEIGE_STAINED_PLANKS = addToTabOptional("yogmod", registerOptionalBlockItem("yogmod", "beige_stained_planks",
             () -> new BlockItem(ModBlocks.BEIGE_STAINED_PLANKS.get(), new Item.Properties())));

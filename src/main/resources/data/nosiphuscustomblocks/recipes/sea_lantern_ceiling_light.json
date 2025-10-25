@@ -1,0 +1,15 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "key": {
+    "S": {
+      "item": "minecraft:sea_lantern"
+    }
+  },
+  "pattern": [
+    "SS"
+  ],
+  "result": {
+    "count": 2,
+    "item": "nosiphuscustomblocks:sea_lantern_ceiling_light"
+  }
+}
