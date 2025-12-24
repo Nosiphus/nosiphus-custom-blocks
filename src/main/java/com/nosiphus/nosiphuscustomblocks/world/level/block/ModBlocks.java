@@ -29,10 +29,12 @@ public class ModBlocks {
             () -> new SlabBlock(BlockBehaviour.Properties.copy(Blocks.STONE_SLAB)));
 
     //Other
-    public static final RegistryObject<Block> SEA_LANTERN_CEILING_LIGHT = BLOCKS.register("sea_lantern_ceiling_light",
-            () -> new CeilingLightBlock(BlockBehaviour.Properties.copy(Blocks.SEA_LANTERN)));
     public static final RegistryObject<Block> FLUORESCENT_PANEL_CEILING_LIGHT = registerOptional("yogmod", "fluorescent_panel_ceiling_light",
             () -> new CeilingLightBlock(BlockBehaviour.Properties.copy(com.nosiphus.yogmod.world.level.block.ModBlocks.FLUORESCENT_PANEL.get())));
+    public static final RegistryObject<Block> GLOWSTONE_CEILING_LIGHT = BLOCKS.register("glowstone_ceiling_light",
+            () -> new CeilingLightBlock(BlockBehaviour.Properties.copy(Blocks.GLOWSTONE)));
+    public static final RegistryObject<Block> SEA_LANTERN_CEILING_LIGHT = BLOCKS.register("sea_lantern_ceiling_light",
+            () -> new CeilingLightBlock(BlockBehaviour.Properties.copy(Blocks.SEA_LANTERN)));
 
     //Beige Stained Planks
     public static final RegistryObject<Block> BEIGE_STAINED_PLANKS = registerOptional("yogmod", "beige_stained_planks",
