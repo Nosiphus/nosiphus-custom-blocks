@@ -1,0 +1,15 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "key": {
+    "F": {
+      "item": "yogmod:fluorescent_panel"
+    }
+  },
+  "pattern": [
+    "FF"
+  ],
+  "result": {
+    "count": 2,
+    "item": "nosiphuscustomblocks:fluorescent_panel_ceiling_light"
+  }
+}
