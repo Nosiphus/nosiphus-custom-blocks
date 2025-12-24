@@ -7,11 +7,11 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
 
-public class SeaLanternCeilingLightBlock extends Block {
+public class CeilingLightBlock extends Block {
 
     protected static final VoxelShape SHAPE = Block.box(2.0D, 14.0D, 2.0D, 14.0D, 16.0D, 14.0D);
 
-    public SeaLanternCeilingLightBlock(Properties properties) {
+    public CeilingLightBlock(Properties properties) {
         super(properties);
     }
 
