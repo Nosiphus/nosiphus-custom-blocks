@@ -28,7 +28,11 @@ public class ModBlocks {
     public static final RegistryObject<Block> TARDIS_SLAB = BLOCKS.register("tardis_slab",
             () -> new SlabBlock(BlockBehaviour.Properties.copy(Blocks.STONE_SLAB)));
 
-    //Other
+    //Road
+    public static final RegistryObject<Block> ROAD = BLOCKS.register("road",
+            () -> new RoadBlock(BlockBehaviour.Properties.copy(Blocks.GRAY_CONCRETE)));
+
+    //Ceiling Lights
     public static final RegistryObject<Block> FLUORESCENT_PANEL_CEILING_LIGHT = registerOptional("yogmod", "fluorescent_panel_ceiling_light",
             () -> new CeilingLightBlock(BlockBehaviour.Properties.copy(com.nosiphus.yogmod.world.level.block.ModBlocks.FLUORESCENT_PANEL.get())));
     public static final RegistryObject<Block> GLOWSTONE_CEILING_LIGHT = BLOCKS.register("glowstone_ceiling_light",

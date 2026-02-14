@@ -1,0 +1,23 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "key": {
+    "G": {
+      "item": "minecraft:gray_concrete"
+    },
+	"W": {
+      "item": "minecraft:white_dye"
+    },
+	"Y": {
+      "item": "minecraft:yellow_dye"
+    }
+  },
+  "pattern": [
+    "WYW",
+    " G ",
+    "   "
+  ],
+  "result": {
+    "count": 1,
+    "item": "nosiphuscustomblocks:road"
+  }
+}

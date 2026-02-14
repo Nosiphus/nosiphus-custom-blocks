@@ -2,6 +2,7 @@
   "replace": false,
   "values": [
 	{ "id": "nosiphuscustomblocks:golden_roundel_block", "required": false },
+	{ "id": "nosiphuscustomblocks:road", "required": false },
 	{ "id": "nosiphuscustomblocks:tardis_slab", "required": false }
   ]
 }

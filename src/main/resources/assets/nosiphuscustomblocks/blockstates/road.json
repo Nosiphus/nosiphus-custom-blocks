@@ -1,0 +1,6 @@
+{
+	"variants": {
+		"axis=x": { "model": "nosiphuscustomblocks:block/road/single", "y": 90 },
+		"axis=z":  { "model": "nosiphuscustomblocks:block/road/single" }
+	}
+}

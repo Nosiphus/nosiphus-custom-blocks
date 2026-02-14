@@ -56,7 +56,11 @@ public class ModItems {
     public static final RegistryObject<BlockItem> TARDIS_SLAB = addToTab(ITEMS.register("tardis_slab",
             () -> new BlockItem(ModBlocks.TARDIS_SLAB.get(), new Item.Properties())));
 
-    //Other
+    //Road
+    public static final RegistryObject<BlockItem> ROAD = addToTab(ITEMS.register("road",
+            () -> new BlockItem(ModBlocks.ROAD.get(), new Item.Properties())));
+
+    //Ceiling Lights
     public static final RegistryObject<BlockItem> FLUORESCENT_PANEL_CEILING_LIGHT = addToTabOptional("yogmod", registerOptionalBlockItem("yogmod", "fluorescent_panel_ceiling_light",
             () -> new BlockItem(ModBlocks.FLUORESCENT_PANEL_CEILING_LIGHT.get(), new Item.Properties())));
     public static final RegistryObject<BlockItem> GLOWSTONE_CEILING_LIGHT = addToTab(ITEMS.register("glowstone_ceiling_light",

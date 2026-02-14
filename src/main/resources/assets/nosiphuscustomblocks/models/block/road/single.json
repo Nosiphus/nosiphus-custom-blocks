@@ -1,0 +1,6 @@
+{
+	"parent": "nosiphuscustomblocks:block/road/road",
+	"textures": {
+		"paint": "nosiphuscustomblocks:block/road/single"
+	}
+}
