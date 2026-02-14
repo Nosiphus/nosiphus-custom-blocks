@@ -1,0 +1,13 @@
+{
+  "render_type": "minecraft:cutout",
+  "elements": [
+    {
+      "name": "paint_overlay",
+      "from": [0, 16.01, 0],
+      "to": [16, 16.01, 16],
+      "faces": {
+        "up": {"uv": [0, 0, 16, 16], "texture": "#paint"}
+      }
+    }
+  ]
+}
