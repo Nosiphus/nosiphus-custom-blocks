@@ -97,7 +97,7 @@ public class RoadBlock extends Block {
             }
             return state.setValue(TEXTURE, RoadTexture.SHOULDER_SINGLE);
         }
-        
+
         Direction widthDir = (axis == Direction.Axis.X) ? Direction.SOUTH : Direction.EAST;
         Direction flowDir = (axis == Direction.Axis.X) ? Direction.EAST : Direction.SOUTH;
 
@@ -106,8 +106,30 @@ public class RoadBlock extends Block {
         while (right < 6 && isRoadAxis(world, pos.relative(widthDir.getOpposite(), right + 1), axis)) right++;
         int width = left + right + 1, myPos = left;
 
-        BlockState f = world.getBlockState(pos.relative(flowDir)), b = world.getBlockState(pos.relative(flowDir.getOpposite()));
-        if ((f.is(this) && f.getValue(AXIS) == Direction.Axis.Y) || (b.is(this) && b.getValue(AXIS) == Direction.Axis.Y)) {
+        BlockPos fPos = pos.relative(flowDir);
+        BlockPos bPos = pos.relative(flowDir.getOpposite());
+        BlockState fState = world.getBlockState(fPos);
+        BlockState bState = world.getBlockState(bPos);
+
+        boolean nearTrueIntersection = false;
+
+        if (fState.is(this) && fState.getValue(AXIS) == Direction.Axis.Y) {
+            int fNeighbors = (world.getBlockState(fPos.north()).getBlock() instanceof RoadBlock ? 1 : 0) +
+                    (world.getBlockState(fPos.south()).getBlock() instanceof RoadBlock ? 1 : 0) +
+                    (world.getBlockState(fPos.east()).getBlock() instanceof RoadBlock ? 1 : 0) +
+                    (world.getBlockState(fPos.west()).getBlock() instanceof RoadBlock ? 1 : 0);
+            if (fNeighbors >= 3) nearTrueIntersection = true;
+        }
+
+        if (!nearTrueIntersection && bState.is(this) && bState.getValue(AXIS) == Direction.Axis.Y) {
+            int bNeighbors = (world.getBlockState(bPos.north()).getBlock() instanceof RoadBlock ? 1 : 0) +
+                    (world.getBlockState(bPos.south()).getBlock() instanceof RoadBlock ? 1 : 0) +
+                    (world.getBlockState(bPos.east()).getBlock() instanceof RoadBlock ? 1 : 0) +
+                    (world.getBlockState(bPos.west()).getBlock() instanceof RoadBlock ? 1 : 0);
+            if (bNeighbors >= 3) nearTrueIntersection = true;
+        }
+
+        if (nearTrueIntersection) {
             if (width == 1) return state.setValue(TEXTURE, RoadTexture.CROSSWALK_SINGLE);
             if (myPos == 0) return state.setValue(TEXTURE, RoadTexture.SHOULDER_CROSSWALK_LEFT);
             if (myPos == width - 1) return state.setValue(TEXTURE, RoadTexture.SHOULDER_CROSSWALK_RIGHT);
