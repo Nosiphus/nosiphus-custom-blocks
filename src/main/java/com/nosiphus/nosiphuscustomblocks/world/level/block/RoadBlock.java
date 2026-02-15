@@ -27,6 +27,7 @@ public class RoadBlock extends Block {
 
     public enum RoadTexture implements StringRepresentable {
         CROSSWALK("crosswalk"),
+        CROSSWALK_SINGLE("crosswalk_single"),
         EVEN_DIVIDER_LEFT("even_divider_left"),
         EVEN_DIVIDER_RIGHT("even_divider_right"),
         LANE("lane"),
@@ -37,7 +38,8 @@ public class RoadBlock extends Block {
         SHOULDER_DIVIDER_LEFT("shoulder_divider_left"),
         SHOULDER_DIVIDER_RIGHT("shoulder_divider_right"),
         SHOULDER_LEFT("shoulder_left"),
-        SHOULDER_RIGHT("shoulder_right");
+        SHOULDER_RIGHT("shoulder_right"),
+        SHOULDER_SINGLE("shoulder_single");
 
         private final String name;
         RoadTexture(String name) {
@@ -65,7 +67,8 @@ public class RoadBlock extends Block {
 
     private BlockState calculateState(Level world, BlockPos pos, BlockState state) {
         Direction.Axis axis = state.getValue(AXIS);
-        if (axis == Direction.Axis.Y) return state.setValue(TEXTURE, RoadTexture.LANE);
+
+        if (axis == Direction.Axis.Y) return state.setValue(TEXTURE, RoadTexture.SHOULDER_SINGLE);
 
         Direction widthDir = (axis == Direction.Axis.X) ? Direction.SOUTH : Direction.EAST;
         Direction flowDir = (axis == Direction.Axis.X) ? Direction.EAST : Direction.SOUTH;
@@ -79,7 +82,14 @@ public class RoadBlock extends Block {
         BlockState f = world.getBlockState(pos.relative(flowDir)), b = world.getBlockState(pos.relative(flowDir.getOpposite()));
         boolean nearInt = (f.is(this) && f.getValue(AXIS) == Direction.Axis.Y) || (b.is(this) && b.getValue(AXIS) == Direction.Axis.Y);
 
-        return state.setValue(TEXTURE, getRoadTexture(width, myPos, nearInt));
+        if (nearInt) {
+            if (width == 1) return state.setValue(TEXTURE, RoadTexture.CROSSWALK_SINGLE);
+            if (myPos == 0) return state.setValue(TEXTURE, RoadTexture.SHOULDER_CROSSWALK_LEFT);
+            if (myPos == width - 1) return state.setValue(TEXTURE, RoadTexture.SHOULDER_CROSSWALK_RIGHT);
+            return state.setValue(TEXTURE, RoadTexture.CROSSWALK);
+        }
+
+        return state.setValue(TEXTURE, getRoadTexture(width, myPos));
     }
 
     private boolean isRoadAxis(Level world, BlockPos pos, Direction.Axis axis) {
@@ -87,23 +97,15 @@ public class RoadBlock extends Block {
         return state.is(this) && state.getValue(AXIS) == axis;
     }
 
-    private RoadTexture getRoadTexture(int width, int pos, boolean nearInt) {
-        if (nearInt) {
-            if (pos == 0) return RoadTexture.SHOULDER_CROSSWALK_LEFT;
-            if (pos == width - 1) return RoadTexture.SHOULDER_CROSSWALK_RIGHT;
-            return RoadTexture.CROSSWALK;
-        }
-
+    private RoadTexture getRoadTexture(int width, int pos) {
         if (width == 1) return RoadTexture.SINGLE;
         if (width == 2) return (pos == 0) ? RoadTexture.SHOULDER_DIVIDER_LEFT : RoadTexture.SHOULDER_DIVIDER_RIGHT;
         if (pos == 0) return RoadTexture.SHOULDER_LEFT;
         if (pos == width - 1) return RoadTexture.SHOULDER_RIGHT;
         if (width % 2 != 0 && pos == width / 2) return RoadTexture.ODD_DIVIDER;
-
-        int center = width / 2;
         if (width % 2 == 0) {
-            if (pos == center - 1) return RoadTexture.EVEN_DIVIDER_LEFT;
-            if (pos == center) return RoadTexture.EVEN_DIVIDER_RIGHT;
+            if (pos == (width / 2) - 1) return RoadTexture.EVEN_DIVIDER_LEFT;
+            if (pos == width / 2) return RoadTexture.EVEN_DIVIDER_RIGHT;
         }
         return RoadTexture.LANE;
     }
