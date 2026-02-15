@@ -1,6 +1,6 @@
 {
   "parent": "nosiphuscustomblocks:block/road/paint_template",
   "textures": {
-		"paint": "nosiphuscustomblocks:block/road/crosswalk_shoulder_left"
+		"paint": "nosiphuscustomblocks:block/road/shoulder_crosswalk"
   }
 }

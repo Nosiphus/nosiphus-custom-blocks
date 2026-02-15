@@ -7,35 +7,35 @@
     { "when": { "texture": "single", "axis": "z" }, "apply": { "model": "nosiphuscustomblocks:block/road/single" } },
     { "when": { "texture": "single", "axis": "x" }, "apply": { "model": "nosiphuscustomblocks:block/road/single", "y": 90 } },
 
-    { "when": { "texture": "shoulder_left", "axis": "z" }, "apply": { "model": "nosiphuscustomblocks:block/road/shoulder_left" } },
-    { "when": { "texture": "shoulder_left", "axis": "x" }, "apply": { "model": "nosiphuscustomblocks:block/road/shoulder_left", "y": 90 } },
+    { "when": { "texture": "shoulder_left", "axis": "z" }, "apply": { "model": "nosiphuscustomblocks:block/road/shoulder" } },
+    { "when": { "texture": "shoulder_left", "axis": "x" }, "apply": { "model": "nosiphuscustomblocks:block/road/shoulder", "y": 90 } },
 
-    { "when": { "texture": "shoulder_right", "axis": "z" }, "apply": { "model": "nosiphuscustomblocks:block/road/shoulder_right" } },
-    { "when": { "texture": "shoulder_right", "axis": "x" }, "apply": { "model": "nosiphuscustomblocks:block/road/shoulder_right", "y": 90 } },
+    { "when": { "texture": "shoulder_right", "axis": "z" }, "apply": { "model": "nosiphuscustomblocks:block/road/shoulder", "y": 180 } },
+    { "when": { "texture": "shoulder_right", "axis": "x" }, "apply": { "model": "nosiphuscustomblocks:block/road/shoulder", "y": 270 } },
 
-    { "when": { "texture": "divider", "axis": "z" }, "apply": { "model": "nosiphuscustomblocks:block/road/divider" } },
-    { "when": { "texture": "divider", "axis": "x" }, "apply": { "model": "nosiphuscustomblocks:block/road/divider", "y": 90 } },
+    { "when": { "texture": "divider", "axis": "z" }, "apply": { "model": "nosiphuscustomblocks:block/road/odd_divider" } },
+    { "when": { "texture": "divider", "axis": "x" }, "apply": { "model": "nosiphuscustomblocks:block/road/odd_divider", "y": 90 } },
 
-    { "when": { "texture": "divider_left", "axis": "z" }, "apply": { "model": "nosiphuscustomblocks:block/road/divider_left" } },
-    { "when": { "texture": "divider_left", "axis": "x" }, "apply": { "model": "nosiphuscustomblocks:block/road/divider_left", "y": 90 } },
+    { "when": { "texture": "divider_left", "axis": "z" }, "apply": { "model": "nosiphuscustomblocks:block/road/even_divider" } },
+    { "when": { "texture": "divider_left", "axis": "x" }, "apply": { "model": "nosiphuscustomblocks:block/road/even_divider", "y": 90 } },
 
-    { "when": { "texture": "divider_right", "axis": "z" }, "apply": { "model": "nosiphuscustomblocks:block/road/divider_right" } },
-    { "when": { "texture": "divider_right", "axis": "x" }, "apply": { "model": "nosiphuscustomblocks:block/road/divider_right", "y": 90 } },
+    { "when": { "texture": "divider_right", "axis": "z" }, "apply": { "model": "nosiphuscustomblocks:block/road/even_divider", "y": 180 } },
+    { "when": { "texture": "divider_right", "axis": "x" }, "apply": { "model": "nosiphuscustomblocks:block/road/even_divider", "y": 270 } },
 
-    { "when": { "texture": "shoulder_left_divider", "axis": "z" }, "apply": { "model": "nosiphuscustomblocks:block/road/shoulder_left_divider" } },
-    { "when": { "texture": "shoulder_left_divider", "axis": "x" }, "apply": { "model": "nosiphuscustomblocks:block/road/shoulder_left_divider", "y": 90 } },
+    { "when": { "texture": "shoulder_left_divider", "axis": "z" }, "apply": { "model": "nosiphuscustomblocks:block/road/shoulder_divider" } },
+    { "when": { "texture": "shoulder_left_divider", "axis": "x" }, "apply": { "model": "nosiphuscustomblocks:block/road/shoulder_divider", "y": 90 } },
 
-    { "when": { "texture": "shoulder_right_divider", "axis": "z" }, "apply": { "model": "nosiphuscustomblocks:block/road/shoulder_right_divider" } },
-    { "when": { "texture": "shoulder_right_divider", "axis": "x" }, "apply": { "model": "nosiphuscustomblocks:block/road/shoulder_right_divider", "y": 90 } },
+    { "when": { "texture": "shoulder_right_divider", "axis": "z" }, "apply": { "model": "nosiphuscustomblocks:block/road/shoulder_divider", "y": 180 } },
+    { "when": { "texture": "shoulder_right_divider", "axis": "x" }, "apply": { "model": "nosiphuscustomblocks:block/road/shoulder_divider", "y": 270 } },
 
 	{ "when": { "texture": "crosswalk", "axis": "z" }, "apply": { "model": "nosiphuscustomblocks:block/road/crosswalk" } },
     { "when": { "texture": "crosswalk", "axis": "x" }, "apply": { "model": "nosiphuscustomblocks:block/road/crosswalk", "y": 90 } },
 	
-	{ "when": { "texture": "crosswalk_shoulder_left", "axis": "z" }, "apply": { "model": "nosiphuscustomblocks:block/road/crosswalk_shoulder_left" } },
-    { "when": { "texture": "crosswalk_shoulder_left", "axis": "x" }, "apply": { "model": "nosiphuscustomblocks:block/road/crosswalk_shoulder_left", "y": 90 } },
+	{ "when": { "texture": "crosswalk_shoulder_left", "axis": "z" }, "apply": { "model": "nosiphuscustomblocks:block/road/shoulder_crosswalk" } },
+    { "when": { "texture": "crosswalk_shoulder_left", "axis": "x" }, "apply": { "model": "nosiphuscustomblocks:block/road/shoulder_crosswalk", "y": 90 } },
 	
-	{ "when": { "texture": "crosswalk_shoulder_right", "axis": "z" }, "apply": { "model": "nosiphuscustomblocks:block/road/crosswalk_shoulder_right" } },
-    { "when": { "texture": "crosswalk_shoulder_right", "axis": "x" }, "apply": { "model": "nosiphuscustomblocks:block/road/crosswalk_shoulder_right", "y": 90 } },
+	{ "when": { "texture": "crosswalk_shoulder_right", "axis": "z" }, "apply": { "model": "nosiphuscustomblocks:block/road/shoulder_crosswalk", "y": 180 } },
+    { "when": { "texture": "crosswalk_shoulder_right", "axis": "x" }, "apply": { "model": "nosiphuscustomblocks:block/road/shoulder_crosswalk", "y": 270 } },
 
     { "when": { "texture": "lane", "axis": "z" }, "apply": { "model": "nosiphuscustomblocks:block/road/lane" } },
     { "when": { "texture": "lane", "axis": "x" }, "apply": { "model": "nosiphuscustomblocks:block/road/lane", "y": 90 } }
