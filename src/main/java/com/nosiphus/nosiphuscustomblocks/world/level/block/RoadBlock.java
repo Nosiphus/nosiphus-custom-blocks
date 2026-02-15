@@ -40,6 +40,10 @@ public class RoadBlock extends Block {
         SHOULDER_LEFT("shoulder_left"),
         SHOULDER_RIGHT("shoulder_right"),
         SHOULDER_SINGLE("shoulder_single"),
+        SHOULDER_SINGLE_L_NORTHWEST("shoulder_single_l_northwest"),
+        SHOULDER_SINGLE_L_NORTHEAST("shoulder_single_l_northeast"),
+        SHOULDER_SINGLE_L_SOUTHEAST("shoulder_single_l_southeast"),
+        SHOULDER_SINGLE_L_SOUTHWEST("shoulder_single_l_southwest"),
         SHOULDER_SINGLE_T_NORTH("shoulder_single_t_north"),
         SHOULDER_SINGLE_T_SOUTH("shoulder_single_t_south"),
         SHOULDER_SINGLE_T_EAST("shoulder_single_t_east"),
@@ -85,9 +89,15 @@ public class RoadBlock extends Block {
                 if (!e) return state.setValue(TEXTURE, RoadTexture.SHOULDER_SINGLE_T_EAST);
                 if (!w) return state.setValue(TEXTURE, RoadTexture.SHOULDER_SINGLE_T_WEST);
             }
+            if (neighbors == 2) {
+                if (!n && !w) return state.setValue(TEXTURE, RoadTexture.SHOULDER_SINGLE_L_NORTHWEST);
+                if (!n && !e) return state.setValue(TEXTURE, RoadTexture.SHOULDER_SINGLE_L_NORTHEAST);
+                if (!s && !e) return state.setValue(TEXTURE, RoadTexture.SHOULDER_SINGLE_L_SOUTHEAST);
+                if (!s && !w) return state.setValue(TEXTURE, RoadTexture.SHOULDER_SINGLE_L_SOUTHWEST);
+            }
             return state.setValue(TEXTURE, RoadTexture.SHOULDER_SINGLE);
         }
-
+        
         Direction widthDir = (axis == Direction.Axis.X) ? Direction.SOUTH : Direction.EAST;
         Direction flowDir = (axis == Direction.Axis.X) ? Direction.EAST : Direction.SOUTH;
 

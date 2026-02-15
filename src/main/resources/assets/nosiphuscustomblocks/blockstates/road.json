@@ -38,6 +38,11 @@
 	
 	{ "when": { "texture": "shoulder_single" }, "apply": { "model": "nosiphuscustomblocks:block/road/shoulder_single" } },
 	
+	{ "when": { "texture": "shoulder_single_l_northwest" }, "apply": { "model": "nosiphuscustomblocks:block/road/shoulder_single_l" } },
+    { "when": { "texture": "shoulder_single_l_northeast" }, "apply": { "model": "nosiphuscustomblocks:block/road/shoulder_single_l", "y": 90 } },
+    { "when": { "texture": "shoulder_single_l_southeast" }, "apply": { "model": "nosiphuscustomblocks:block/road/shoulder_single_l", "y": 180 } },
+    { "when": { "texture": "shoulder_single_l_southwest" }, "apply": { "model": "nosiphuscustomblocks:block/road/shoulder_single_l", "y": 270 } },
+	
 	{ "when": { "texture": "shoulder_single_t_north" }, "apply": { "model": "nosiphuscustomblocks:block/road/shoulder_single_t" } },
     { "when": { "texture": "shoulder_single_t_east" }, "apply": { "model": "nosiphuscustomblocks:block/road/shoulder_single_t", "y": 90 } },
     { "when": { "texture": "shoulder_single_t_south" }, "apply": { "model": "nosiphuscustomblocks:block/road/shoulder_single_t", "y": 180 } },
