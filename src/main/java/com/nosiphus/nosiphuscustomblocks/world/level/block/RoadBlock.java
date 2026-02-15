@@ -11,11 +11,12 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.EnumProperty;
+import net.minecraft.world.level.block.state.properties.IntegerProperty;
 import org.jetbrains.annotations.Nullable;
 
 public class RoadBlock extends Block {
 
-    public static final EnumProperty<Direction.Axis> AXIS = BlockStateProperties.HORIZONTAL_AXIS;
+    public static final EnumProperty<Direction.Axis> AXIS = BlockStateProperties.AXIS;
     public static final EnumProperty<RoadTexture> TEXTURE = EnumProperty.create("texture", RoadTexture.class);
 
     public RoadBlock(Properties properties) {
@@ -26,11 +27,17 @@ public class RoadBlock extends Block {
     }
 
     public enum RoadTexture implements StringRepresentable {
+        CROSSWALK("crosswalk"),
+        CROSSWALK_SHOULDER_LEFT("crosswalk_shoulder_left"),
+        CROSSWALK_SHOULDER_RIGHT("crosswalk_shoulder_right"),
         DIVIDER("divider"),
         DIVIDER_LEFT("divider_left"),
         DIVIDER_RIGHT("divider_right"),
         LANE("lane"),
         SINGLE("single"),
+        SHOULDER_INTERSECTION_LEFT("shoulder_intersection_left"),
+        SHOULDER_INTERSECTION_RIGHT("shoulder_intersection_right"),
+        SHOULDER_INTERSECTION_SINGLE("shoulder_intersection_single"),
         SHOULDER_LEFT("shoulder_left"),
         SHOULDER_LEFT_DIVIDER("shoulder_left_divider"),
         SHOULDER_RIGHT("shoulder_right"),
@@ -49,7 +56,7 @@ public class RoadBlock extends Block {
 
     @Override
     public @Nullable BlockState getStateForPlacement(BlockPlaceContext context) {
-        return this.calculateState(context.getLevel(), context.getClickedPos(), this.defaultBlockState().setValue(AXIS, context.getHorizontalDirection().getAxis()));
+        return this.calculateState(context.getLevel(), context.getClickedPos(), this.defaultBlockState().setValue(AXIS, context.getClickedFace().getAxis()));
     }
 
     @Override
@@ -62,42 +69,51 @@ public class RoadBlock extends Block {
 
     private BlockState calculateState(Level world, BlockPos pos, BlockState state) {
         Direction.Axis axis = state.getValue(AXIS);
-        Direction checkDir = (axis == Direction.Axis.X) ? Direction.SOUTH : Direction.EAST;
-        Direction oppDir = checkDir.getOpposite();
 
+        if (axis == Direction.Axis.Y) {
+            return state.setValue(TEXTURE, RoadTexture.LANE);
+        }
+
+        Direction flow = (axis == Direction.Axis.X) ? Direction.EAST : Direction.SOUTH;
+        boolean nearIntersection = isY(world, pos.relative(flow)) || isY(world, pos.relative(flow.getOpposite()));
+
+        Direction checkDir = (axis == Direction.Axis.X) ? Direction.SOUTH : Direction.EAST;
         int left = 0;
         int right = 0;
-
-        while (left < 6 && world.getBlockState(pos.relative(checkDir, left + 1)).getBlock() instanceof RoadBlock) {
-            left++;
-        }
-        while (right < 6 && world.getBlockState(pos.relative(oppDir, right + 1)).getBlock() instanceof RoadBlock) {
-            right++;
-        }
+        while (left < 6 && isSameAxis(world, pos.relative(checkDir, left + 1), axis)) left++;
+        while (right < 6 && isSameAxis(world, pos.relative(checkDir.getOpposite(), right + 1), axis)) right++;
 
         int totalWidth = left + right + 1;
         int myPos = left;
-        RoadTexture tex = RoadTexture.LANE;
 
-        if (totalWidth == 1) {
-            tex = RoadTexture.SINGLE;
-        } else if (totalWidth == 2) {
-            tex = (myPos == 0) ? RoadTexture.SHOULDER_LEFT_DIVIDER : RoadTexture.SHOULDER_RIGHT_DIVIDER;
-        } else {
-            if (myPos == 0) {
-                tex = RoadTexture.SHOULDER_LEFT;
-            } else if (myPos == totalWidth - 1) {
-                tex = RoadTexture.SHOULDER_RIGHT;
-            } else if (totalWidth % 2 != 0 && myPos == totalWidth / 2) {
-                tex = RoadTexture.DIVIDER;
-            } else if (totalWidth % 2 == 0 && myPos == (totalWidth / 2) - 1) {
-                tex = RoadTexture.DIVIDER_LEFT;
-            } else if (totalWidth % 2 == 0 && myPos == totalWidth / 2) {
-                tex = RoadTexture.DIVIDER_RIGHT;
-            }
+        if (nearIntersection) {
+            if (myPos == 0) return state.setValue(TEXTURE, RoadTexture.CROSSWALK_SHOULDER_LEFT);
+            if (myPos == totalWidth - 1) return state.setValue(TEXTURE, RoadTexture.CROSSWALK_SHOULDER_RIGHT);
+            return state.setValue(TEXTURE, RoadTexture.CROSSWALK);
         }
 
-        return state.setValue(TEXTURE, tex);
+        return state.setValue(TEXTURE, getRoadTexture(totalWidth, myPos));
+    }
+
+    private boolean isY(Level world, BlockPos pos) {
+        BlockState s = world.getBlockState(pos);
+        return s.getBlock() instanceof RoadBlock && s.getValue(AXIS) == Direction.Axis.Y;
+    }
+
+    private boolean isSameAxis(Level world, BlockPos pos, Direction.Axis axis) {
+        BlockState state = world.getBlockState(pos);
+        return state.getBlock() instanceof RoadBlock && state.getValue(AXIS) == axis;
+    }
+
+    private RoadTexture getRoadTexture(int width, int pos) {
+        if (width == 1) return RoadTexture.SINGLE;
+        if (width == 2) return (pos == 0) ? RoadTexture.SHOULDER_LEFT_DIVIDER : RoadTexture.SHOULDER_RIGHT_DIVIDER;
+        if (pos == 0) return RoadTexture.SHOULDER_LEFT;
+        if (pos == width - 1) return RoadTexture.SHOULDER_RIGHT;
+        if (width % 2 != 0 && pos == width / 2) return RoadTexture.DIVIDER;
+        if (width % 2 == 0 && pos == (width / 2) - 1) return RoadTexture.DIVIDER_LEFT;
+        if (width % 2 == 0 && pos == width / 2) return RoadTexture.DIVIDER_RIGHT;
+        return RoadTexture.LANE;
     }
 
     @Override

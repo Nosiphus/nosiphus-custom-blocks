@@ -1,13 +1,8 @@
 {
   "multipart": [
-    {
-      "when": { "axis": "z" },
-      "apply": { "model": "nosiphuscustomblocks:block/road/asphalt" }
-    },
-    {
-      "when": { "axis": "x" },
-      "apply": { "model": "nosiphuscustomblocks:block/road/asphalt", "y": 90, "uvlock": true }
-    },
+    { "when": { "axis": "z" }, "apply": { "model": "nosiphuscustomblocks:block/road/asphalt" } },
+	{ "when": { "axis": "y" }, "apply": { "model": "nosiphuscustomblocks:block/road/asphalt" } },
+    { "when": { "axis": "x" }, "apply": { "model": "nosiphuscustomblocks:block/road/asphalt", "y": 90, "uvlock": true } },
 
     { "when": { "texture": "single", "axis": "z" }, "apply": { "model": "nosiphuscustomblocks:block/road/single" } },
     { "when": { "texture": "single", "axis": "x" }, "apply": { "model": "nosiphuscustomblocks:block/road/single", "y": 90 } },
@@ -32,6 +27,15 @@
 
     { "when": { "texture": "shoulder_right_divider", "axis": "z" }, "apply": { "model": "nosiphuscustomblocks:block/road/shoulder_right_divider" } },
     { "when": { "texture": "shoulder_right_divider", "axis": "x" }, "apply": { "model": "nosiphuscustomblocks:block/road/shoulder_right_divider", "y": 90 } },
+
+	{ "when": { "texture": "crosswalk", "axis": "z" }, "apply": { "model": "nosiphuscustomblocks:block/road/crosswalk" } },
+    { "when": { "texture": "crosswalk", "axis": "x" }, "apply": { "model": "nosiphuscustomblocks:block/road/crosswalk", "y": 90 } },
+	
+	{ "when": { "texture": "crosswalk_shoulder_left", "axis": "z" }, "apply": { "model": "nosiphuscustomblocks:block/road/crosswalk_shoulder_left" } },
+    { "when": { "texture": "crosswalk_shoulder_left", "axis": "x" }, "apply": { "model": "nosiphuscustomblocks:block/road/crosswalk_shoulder_left", "y": 90 } },
+	
+	{ "when": { "texture": "crosswalk_shoulder_right", "axis": "z" }, "apply": { "model": "nosiphuscustomblocks:block/road/crosswalk_shoulder_right" } },
+    { "when": { "texture": "crosswalk_shoulder_right", "axis": "x" }, "apply": { "model": "nosiphuscustomblocks:block/road/crosswalk_shoulder_right", "y": 90 } },
 
     { "when": { "texture": "lane", "axis": "z" }, "apply": { "model": "nosiphuscustomblocks:block/road/lane" } },
     { "when": { "texture": "lane", "axis": "x" }, "apply": { "model": "nosiphuscustomblocks:block/road/lane", "y": 90 } }
