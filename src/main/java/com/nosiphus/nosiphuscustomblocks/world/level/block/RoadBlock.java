@@ -30,6 +30,10 @@ public class RoadBlock extends Block {
     public enum RoadTexture implements StringRepresentable {
         CROSSWALK("crosswalk"),
         CROSSWALK_SINGLE("crosswalk_single"),
+        EVEN_DIVIDER_L_BOTTOM_LEFT("even_divider_l_bottom_left"),
+        EVEN_DIVIDER_L_BOTTOM_RIGHT("even_divider_l_bottom_right"),
+        EVEN_DIVIDER_L_TOP_LEFT("even_divider_l_top_left"),
+        EVEN_DIVIDER_L_TOP_RIGHT("even_divider_l_top_right"),
         EVEN_DIVIDER_LEFT("even_divider_left"),
         EVEN_DIVIDER_RIGHT("even_divider_right"),
         LANE("lane"),
