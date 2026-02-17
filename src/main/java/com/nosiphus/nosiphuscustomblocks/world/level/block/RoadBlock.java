@@ -48,6 +48,10 @@ public class RoadBlock extends Block {
         EVEN_DIVIDER_L_TOP_RIGHT_SOUTHWEST("even_divider_l_top_right_southwest"),
         EVEN_DIVIDER_LEFT("even_divider_left"),
         EVEN_DIVIDER_RIGHT("even_divider_right"),
+        EVEN_DIVIDER_LEFT_Y_NORTHSOUTH("even_divider_left_y_northsouth"),
+        EVEN_DIVIDER_LEFT_Y_EASTWEST("even_divider_left_y_eastwest"),
+        EVEN_DIVIDER_RIGHT_Y_NORTHSOUTH("even_divider_right_y_northsouth"),
+        EVEN_DIVIDER_RIGHT_Y_EASTWEST("even_divider_right_y_eastwest"),
         LANE("lane"),
         ODD_DIVIDER("odd_divider"),
         ODD_DIVIDER_L_NORTHWEST("odd_divider_l_northwest"),
@@ -98,9 +102,7 @@ public class RoadBlock extends Block {
 
     @Override
     public void setPlacedBy(Level level, BlockPos pos, BlockState state, @Nullable LivingEntity placer, ItemStack stack) {
-        if (!level.isClientSide) {
-            updateRadius(level, pos, 16);
-        }
+        if (!level.isClientSide) updateRadius(level, pos, 16);
     }
 
     private void updateRadius(Level level, BlockPos center, int radius) {
@@ -132,8 +134,6 @@ public class RoadBlock extends Block {
         } else {
             finalState = calculateStraightRoad(world, pos, state, currentAxis);
         }
-
-        System.out.println("[ROAD DEBUG] Pos: " + pos.toShortString() + " | Axis: " + currentAxis + " | Assigned Texture: " + finalState.getValue(TEXTURE));
         return finalState;
     }
 
@@ -166,7 +166,7 @@ public class RoadBlock extends Block {
         boolean verticalThrough = (anchorValN > 0 && anchorValS > 0);
         boolean horizontalThrough = (anchorValE > 0 && anchorValW > 0);
 
-        // STEP 3: Junction Exclusion
+        // STEP 3: Junction Exclusion (Forced clean asphalt for non-turns)
         if ((oddAnchors + evenAnchors) > 2 || verticalThrough || horizontalThrough) {
             return state.setValue(TEXTURE, RoadTexture.LANE);
         }
@@ -179,7 +179,7 @@ public class RoadBlock extends Block {
             if (anchorValS == 3 && anchorValW == 3) return state.setValue(TEXTURE, RoadTexture.ODD_DIVIDER_L_NORTHEAST);
         }
 
-        // STEP 5: Even L-Turn (The Final Diagonal Swap)
+        // STEP 5: Even L-Turn (The Final Manual Coordinate Logic)
         int verticalPairSide = (anchorValN > 0 && anchorValN < 3) ? anchorValN : (anchorValS > 0 && anchorValS < 3 ? anchorValS : 0);
         int horizontalPairSide = (anchorValE > 0 && anchorValE < 3) ? anchorValE : (anchorValW > 0 && anchorValW < 3 ? anchorValW : 0);
 
@@ -228,9 +228,16 @@ public class RoadBlock extends Block {
             if (isVertexNearby(world, pos, dir, true)) return state.setValue(TEXTURE, dir.getAxis() == Direction.Axis.X ? RoadTexture.ODD_DIVIDER_Y_EASTWEST : RoadTexture.ODD_DIVIDER_Y_NORTHSOUTH);
         }
         if (evenAnchors == 1) {
-            int currentSide = Math.max(verticalPairSide, horizontalPairSide);
-            Direction dir = (anchorValN > 0 ? Direction.SOUTH : (anchorValS > 0 ? Direction.NORTH : (anchorValE > 0 ? Direction.WEST : Direction.EAST)));
-            if (isVertexNearby(world, pos, dir, false)) return state.setValue(TEXTURE, currentSide == 1 ? RoadTexture.EVEN_DIVIDER_LEFT : RoadTexture.EVEN_DIVIDER_RIGHT);
+            int currentPairSide = Math.max(verticalPairSide, horizontalPairSide);
+            Direction scanDir = (anchorValN > 0 ? Direction.SOUTH : (anchorValS > 0 ? Direction.NORTH : (anchorValE > 0 ? Direction.WEST : Direction.EAST)));
+            if (isVertexNearby(world, pos, scanDir, false)) {
+                boolean isNS = scanDir.getAxis() == Direction.Axis.Z;
+                if (currentPairSide == 1) {
+                    return state.setValue(TEXTURE, isNS ? RoadTexture.EVEN_DIVIDER_LEFT_Y_NORTHSOUTH : RoadTexture.EVEN_DIVIDER_LEFT_Y_EASTWEST);
+                } else {
+                    return state.setValue(TEXTURE, isNS ? RoadTexture.EVEN_DIVIDER_RIGHT_Y_NORTHSOUTH : RoadTexture.EVEN_DIVIDER_RIGHT_Y_EASTWEST);
+                }
+            }
         }
 
         // STEP 7: Shoulders and Fallbacks
@@ -241,46 +248,25 @@ public class RoadBlock extends Block {
 
     private int getAnchorValue(Level world, BlockPos pos, Direction scanDir, Direction.Axis roadAxis) {
         Direction widthDir = (roadAxis == Direction.Axis.X) ? Direction.NORTH : Direction.WEST;
-
         for (int distance = 1; distance <= 16; distance++) {
             BlockPos checkPos = pos.relative(scanDir, distance);
             BlockState checkState = world.getBlockState(checkPos);
-
             if (!checkState.is(this)) break;
-
             if (checkState.getValue(AXIS) == roadAxis) {
                 int leftLanes = 0, rightLanes = 0;
                 while (leftLanes < 8 && isRoadAxis(world, checkPos.relative(widthDir, leftLanes + 1), roadAxis)) leftLanes++;
                 while (rightLanes < 8 && isRoadAxis(world, checkPos.relative(widthDir.getOpposite(), rightLanes + 1), roadAxis)) rightLanes++;
-
                 int totalWidth = leftLanes + rightLanes + 1;
-
-                // Odd Width Center
                 if (totalWidth % 2 != 0 && leftLanes == rightLanes) return 3;
-
-                // Even Width Center Pair
                 if (totalWidth % 2 == 0) {
-                    if (leftLanes == (totalWidth / 2) - 1) return 1; // Low Coordinate Side
-                    if (leftLanes == (totalWidth / 2)) return 2;     // High Coordinate Side
+                    if (leftLanes == (totalWidth / 2) - 1) return 1;
+                    if (leftLanes == totalWidth / 2) return 2;
                 }
                 break;
             }
-            // Stop if we hit a different road block that isn't a Y-axis intersection
             if (checkState.getValue(AXIS) != Direction.Axis.Y) break;
         }
         return 0;
-    }
-
-    private RoadTexture resolveEvenLTexture(int v, int h, String turn) {
-        // v: 1=West (X-), 2=East (X+)
-        // h: 1=North (Z-), 2=South (Z+)
-        String quad;
-        if (v == 1) {
-            quad = (h == 1) ? "TOP_LEFT" : "BOTTOM_LEFT";
-        } else {
-            quad = (h == 1) ? "TOP_RIGHT" : "BOTTOM_RIGHT";
-        }
-        return RoadTexture.valueOf("EVEN_DIVIDER_L_" + quad + "_" + turn);
     }
 
     private boolean isVertexNearby(Level world, BlockPos pos, Direction dir, boolean odd) {
@@ -384,7 +370,12 @@ public class RoadBlock extends Block {
         BlockState state = level.getBlockState(pos);
         return state.is(this) && state.getValue(AXIS) == axis;
     }
-    private boolean isRoad(Level level, BlockPos pos) { return level.getBlockState(pos).is(this); }
+    private boolean isRoad(Level level, BlockPos pos) {
+        return level.getBlockState(pos).is(this);
+     }
 
-    @Override protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) { builder.add(AXIS, TEXTURE); }
+    @Override
+    protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
+        builder.add(AXIS, TEXTURE);
+    }
 }
