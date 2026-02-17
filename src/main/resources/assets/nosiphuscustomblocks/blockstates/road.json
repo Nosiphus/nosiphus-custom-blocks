@@ -10,6 +10,26 @@
 	{ "when": { "texture": "crosswalk_single", "axis": "z" }, "apply": { "model": "nosiphuscustomblocks:block/road/crosswalk_single" } },
     { "when": { "texture": "crosswalk_single", "axis": "x" }, "apply": { "model": "nosiphuscustomblocks:block/road/crosswalk_single", "y": 90 } },
 	
+	{ "when": { "texture": "double_divider_l_bottom_left_southeast" }, "apply": { "model": "nosiphuscustomblocks:block/road/double_divider_l_bottom_left", "y": 180 } },
+	{ "when": { "texture": "double_divider_l_bottom_right_southeast" }, "apply": { "model": "nosiphuscustomblocks:block/road/double_divider_l_bottom_right", "y": 180 } },
+	{ "when": { "texture": "double_divider_l_top_left_southeast" }, "apply": { "model": "nosiphuscustomblocks:block/road/double_divider_l_top_left", "y": 180 } },
+	{ "when": { "texture": "double_divider_l_top_right_southeast" }, "apply": { "model": "nosiphuscustomblocks:block/road/double_divider_l_top_right", "y": 180 } },
+
+	{ "when": { "texture": "double_divider_l_bottom_left_northwest" }, "apply": { "model": "nosiphuscustomblocks:block/road/double_divider_l_bottom_left" } },
+	{ "when": { "texture": "double_divider_l_bottom_right_northwest" }, "apply": { "model": "nosiphuscustomblocks:block/road/double_divider_l_bottom_right" } },
+	{ "when": { "texture": "double_divider_l_top_left_northwest" }, "apply": { "model": "nosiphuscustomblocks:block/road/double_divider_l_top_left" } },
+	{ "when": { "texture": "double_divider_l_top_right_northwest" }, "apply": { "model": "nosiphuscustomblocks:block/road/double_divider_l_top_right" } },
+
+	{ "when": { "texture": "double_divider_l_bottom_left_northeast" }, "apply": { "model": "nosiphuscustomblocks:block/road/double_divider_l_bottom_left", "y": 90 } },
+	{ "when": { "texture": "double_divider_l_bottom_right_northeast" }, "apply": { "model": "nosiphuscustomblocks:block/road/double_divider_l_bottom_right", "y": 90 } },
+	{ "when": { "texture": "double_divider_l_top_left_northeast" }, "apply": { "model": "nosiphuscustomblocks:block/road/double_divider_l_top_left", "y": 90 } },
+	{ "when": { "texture": "double_divider_l_top_right_northeast" }, "apply": { "model": "nosiphuscustomblocks:block/road/double_divider_l_top_right", "y": 90 } },
+
+	{ "when": { "texture": "double_divider_l_bottom_left_southwest" }, "apply": { "model": "nosiphuscustomblocks:block/road/double_divider_l_bottom_left", "y": 270 } },
+	{ "when": { "texture": "double_divider_l_bottom_right_southwest" }, "apply": { "model": "nosiphuscustomblocks:block/road/double_divider_l_bottom_right", "y": 270 } },
+	{ "when": { "texture": "double_divider_l_top_left_southwest" }, "apply": { "model": "nosiphuscustomblocks:block/road/double_divider_l_top_left", "y": 270 } },
+	{ "when": { "texture": "double_divider_l_top_right_southwest" }, "apply": { "model": "nosiphuscustomblocks:block/road/double_divider_l_top_right", "y": 270 } },
+	
 	{ "when": { "texture": "even_divider_l_bottom_left_southeast" }, "apply": { "model": "nosiphuscustomblocks:block/road/even_divider_l_bottom_left", "y": 180 } },
 	{ "when": { "texture": "even_divider_l_bottom_right_southeast" }, "apply": { "model": "nosiphuscustomblocks:block/road/even_divider_l_bottom_right", "y": 180 } },
 	{ "when": { "texture": "even_divider_l_top_left_southeast" }, "apply": { "model": "nosiphuscustomblocks:block/road/even_divider_l_top_left", "y": 180 } },

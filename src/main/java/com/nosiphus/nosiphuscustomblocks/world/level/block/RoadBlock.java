@@ -30,6 +30,22 @@ public class RoadBlock extends Block {
     public enum RoadTexture implements StringRepresentable {
         CROSSWALK("crosswalk"),
         CROSSWALK_SINGLE("crosswalk_single"),
+        DOUBLE_DIVIDER_L_BOTTOM_LEFT_NORTHWEST("double_divider_l_bottom_left_northwest"),
+        DOUBLE_DIVIDER_L_BOTTOM_LEFT_NORTHEAST("double_divider_l_bottom_left_northeast"),
+        DOUBLE_DIVIDER_L_BOTTOM_LEFT_SOUTHEAST("double_divider_l_bottom_left_southeast"),
+        DOUBLE_DIVIDER_L_BOTTOM_LEFT_SOUTHWEST("double_divider_l_bottom_left_southwest"),
+        DOUBLE_DIVIDER_L_BOTTOM_RIGHT_NORTHWEST("double_divider_l_bottom_right_northwest"),
+        DOUBLE_DIVIDER_L_BOTTOM_RIGHT_NORTHEAST("double_divider_l_bottom_right_northeast"),
+        DOUBLE_DIVIDER_L_BOTTOM_RIGHT_SOUTHEAST("double_divider_l_bottom_right_southeast"),
+        DOUBLE_DIVIDER_L_BOTTOM_RIGHT_SOUTHWEST("double_divider_l_bottom_right_southwest"),
+        DOUBLE_DIVIDER_L_TOP_LEFT_NORTHWEST("double_divider_l_top_left_northwest"),
+        DOUBLE_DIVIDER_L_TOP_LEFT_NORTHEAST("double_divider_l_top_left_northeast"),
+        DOUBLE_DIVIDER_L_TOP_LEFT_SOUTHEAST("double_divider_l_top_left_southeast"),
+        DOUBLE_DIVIDER_L_TOP_LEFT_SOUTHWEST("double_divider_l_top_left_southwest"),
+        DOUBLE_DIVIDER_L_TOP_RIGHT_NORTHWEST("double_divider_l_top_right_northwest"),
+        DOUBLE_DIVIDER_L_TOP_RIGHT_NORTHEAST("double_divider_l_top_right_northeast"),
+        DOUBLE_DIVIDER_L_TOP_RIGHT_SOUTHEAST("double_divider_l_top_right_southeast"),
+        DOUBLE_DIVIDER_L_TOP_RIGHT_SOUTHWEST("double_divider_l_top_right_southwest"),
         EVEN_DIVIDER_L_BOTTOM_LEFT_NORTHWEST("even_divider_l_bottom_left_northwest"),
         EVEN_DIVIDER_L_BOTTOM_LEFT_NORTHEAST("even_divider_l_bottom_left_northeast"),
         EVEN_DIVIDER_L_BOTTOM_LEFT_SOUTHEAST("even_divider_l_bottom_left_southeast"),
@@ -179,13 +195,21 @@ public class RoadBlock extends Block {
             if (anchorValS == 3 && anchorValW == 3) return state.setValue(TEXTURE, RoadTexture.ODD_DIVIDER_L_NORTHEAST);
         }
 
-        // STEP 5: Even L-Turn (The Final Manual Coordinate Logic)
+        // STEP 5: Even L-Turn (2x2 and 4x4+ Support)
         int verticalPairSide = (anchorValN > 0 && anchorValN < 3) ? anchorValN : (anchorValS > 0 && anchorValS < 3 ? anchorValS : 0);
         int horizontalPairSide = (anchorValE > 0 && anchorValE < 3) ? anchorValE : (anchorValW > 0 && anchorValW < 3 ? anchorValW : 0);
 
         if (verticalPairSide > 0 && horizontalPairSide > 0) {
             String turnOrientation = "";
             String textureQuadrant = "";
+
+            // Check if the connected roads are 2 blocks wide (Small Even)
+            boolean isSmallEven = getRoadWidth(world, pos, Direction.NORTH, Direction.Axis.Z) == 2 ||
+                    getRoadWidth(world, pos, Direction.SOUTH, Direction.Axis.Z) == 2 ||
+                    getRoadWidth(world, pos, Direction.EAST, Direction.Axis.X) == 2 ||
+                    getRoadWidth(world, pos, Direction.WEST, Direction.Axis.X) == 2;
+
+            String texturePrefix = isSmallEven ? "DOUBLE_DIVIDER_L_" : "EVEN_DIVIDER_L_";
 
             if (anchorValS > 0 && anchorValE > 0) { // NORTHWEST Turn
                 turnOrientation = "NORTHWEST";
@@ -218,7 +242,7 @@ public class RoadBlock extends Block {
             }
 
             if (!textureQuadrant.isEmpty()) {
-                return state.setValue(TEXTURE, RoadTexture.valueOf("EVEN_DIVIDER_L_" + textureQuadrant + "_" + turnOrientation));
+                return state.setValue(TEXTURE, RoadTexture.valueOf(texturePrefix + textureQuadrant + "_" + turnOrientation));
             }
         }
 
@@ -244,6 +268,23 @@ public class RoadBlock extends Block {
         boolean allNeighbors = roadExistsNorth && roadExistsSouth && roadExistsEast && roadExistsWest && roadExistsNW && roadExistsNE && roadExistsSW && roadExistsSE;
         if (allNeighbors) return state.setValue(TEXTURE, RoadTexture.LANE);
         return handleShoulderChain(world, pos, state, connectedRoadCount);
+    }
+
+    private int getRoadWidth(Level world, BlockPos pos, Direction scanDir, Direction.Axis roadAxis) {
+        Direction widthDir = (roadAxis == Direction.Axis.X) ? Direction.NORTH : Direction.WEST;
+        for (int distance = 1; distance <= 16; distance++) {
+            BlockPos aPos = pos.relative(scanDir, distance);
+            BlockState s = world.getBlockState(aPos);
+            if (!s.is(this)) break;
+            if (s.getValue(AXIS) == roadAxis) {
+                int left = 0, right = 0;
+                while (left < 8 && isRoadAxis(world, aPos.relative(widthDir, left + 1), roadAxis)) left++;
+                while (right < 8 && isRoadAxis(world, aPos.relative(widthDir.getOpposite(), right + 1), roadAxis)) right++;
+                return left + right + 1;
+            }
+            if (s.getValue(AXIS) != Direction.Axis.Y) break;
+        }
+        return 0;
     }
 
     private int getAnchorValue(Level world, BlockPos pos, Direction scanDir, Direction.Axis roadAxis) {
