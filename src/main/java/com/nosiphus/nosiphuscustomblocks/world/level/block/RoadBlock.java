@@ -182,8 +182,14 @@ public class RoadBlock extends Block {
         boolean verticalThrough = (anchorValN > 0 && anchorValS > 0);
         boolean horizontalThrough = (anchorValE > 0 && anchorValW > 0);
 
-        // STEP 3: Junction Exclusion (Forced clean asphalt for non-turns)
-        if ((oddAnchors + evenAnchors) > 2 || verticalThrough || horizontalThrough) {
+        // STEP 3: Junction Hub Logic (2x2 Detection)
+        boolean isSmallEven = getRoadWidth(world, pos, Direction.NORTH, Direction.Axis.Z) == 2 ||
+                getRoadWidth(world, pos, Direction.SOUTH, Direction.Axis.Z) == 2 ||
+                getRoadWidth(world, pos, Direction.EAST, Direction.Axis.X) == 2 ||
+                getRoadWidth(world, pos, Direction.WEST, Direction.Axis.X) == 2;
+
+        // Keep clean for 4x4+ through-traffic, but allow 2x2 to use dividers/shoulders
+        if (!isSmallEven && ((oddAnchors + evenAnchors) > 2 || verticalThrough || horizontalThrough)) {
             return state.setValue(TEXTURE, RoadTexture.LANE);
         }
 
@@ -195,20 +201,13 @@ public class RoadBlock extends Block {
             if (anchorValS == 3 && anchorValW == 3) return state.setValue(TEXTURE, RoadTexture.ODD_DIVIDER_L_NORTHEAST);
         }
 
-        // STEP 5: Even L-Turn (2x2 and 4x4+ Support)
+        // STEP 5: Even L-Turn (Vertex Cluster Mapping)
         int verticalPairSide = (anchorValN > 0 && anchorValN < 3) ? anchorValN : (anchorValS > 0 && anchorValS < 3 ? anchorValS : 0);
         int horizontalPairSide = (anchorValE > 0 && anchorValE < 3) ? anchorValE : (anchorValW > 0 && anchorValW < 3 ? anchorValW : 0);
 
         if (verticalPairSide > 0 && horizontalPairSide > 0) {
             String turnOrientation = "";
             String textureQuadrant = "";
-
-            // Check if the connected roads are 2 blocks wide (Small Even)
-            boolean isSmallEven = getRoadWidth(world, pos, Direction.NORTH, Direction.Axis.Z) == 2 ||
-                    getRoadWidth(world, pos, Direction.SOUTH, Direction.Axis.Z) == 2 ||
-                    getRoadWidth(world, pos, Direction.EAST, Direction.Axis.X) == 2 ||
-                    getRoadWidth(world, pos, Direction.WEST, Direction.Axis.X) == 2;
-
             String texturePrefix = isSmallEven ? "DOUBLE_DIVIDER_L_" : "EVEN_DIVIDER_L_";
 
             if (anchorValS > 0 && anchorValE > 0) { // NORTHWEST Turn
@@ -246,20 +245,21 @@ public class RoadBlock extends Block {
             }
         }
 
-        // STEP 6: Leg Extensions
+        // STEP 6: Leg Extensions and 2x2 Through-Traffic
         if (oddAnchors == 1) {
             Direction dir = anchorValN == 3 ? Direction.SOUTH : (anchorValS == 3 ? Direction.NORTH : (anchorValE == 3 ? Direction.WEST : Direction.EAST));
             if (isVertexNearby(world, pos, dir, true)) return state.setValue(TEXTURE, dir.getAxis() == Direction.Axis.X ? RoadTexture.ODD_DIVIDER_Y_EASTWEST : RoadTexture.ODD_DIVIDER_Y_NORTHSOUTH);
         }
-        if (evenAnchors == 1) {
+
+        if (evenAnchors == 1 || (isSmallEven && (verticalThrough || horizontalThrough))) {
             int currentPairSide = Math.max(verticalPairSide, horizontalPairSide);
             Direction scanDir = (anchorValN > 0 ? Direction.SOUTH : (anchorValS > 0 ? Direction.NORTH : (anchorValE > 0 ? Direction.WEST : Direction.EAST)));
-            if (isVertexNearby(world, pos, scanDir, false)) {
-                boolean isNS = scanDir.getAxis() == Direction.Axis.Z;
+            if (isVertexNearby(world, pos, scanDir, false) || (isSmallEven && (verticalThrough || horizontalThrough))) {
+                boolean isNorthSouth = (anchorValN > 0 || anchorValS > 0);
                 if (currentPairSide == 1) {
-                    return state.setValue(TEXTURE, isNS ? RoadTexture.EVEN_DIVIDER_LEFT_Y_NORTHSOUTH : RoadTexture.EVEN_DIVIDER_LEFT_Y_EASTWEST);
+                    return state.setValue(TEXTURE, isNorthSouth ? RoadTexture.EVEN_DIVIDER_LEFT_Y_NORTHSOUTH : RoadTexture.EVEN_DIVIDER_LEFT_Y_EASTWEST);
                 } else {
-                    return state.setValue(TEXTURE, isNS ? RoadTexture.EVEN_DIVIDER_RIGHT_Y_NORTHSOUTH : RoadTexture.EVEN_DIVIDER_RIGHT_Y_EASTWEST);
+                    return state.setValue(TEXTURE, isNorthSouth ? RoadTexture.EVEN_DIVIDER_RIGHT_Y_NORTHSOUTH : RoadTexture.EVEN_DIVIDER_RIGHT_Y_EASTWEST);
                 }
             }
         }
