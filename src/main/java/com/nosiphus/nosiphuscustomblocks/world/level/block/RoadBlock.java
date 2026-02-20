@@ -324,26 +324,39 @@ public class RoadBlock extends Block {
     // --- HUB SUB-HANDLERS ---
 
     private BlockState handleDoubleIntersection(Level world, BlockPos pos, BlockState state) {
+        // 1. AGNOSTIC DISCOVERY (The "Laser Scanner")
         int iN = getConnectedAnchorIndex(world, pos, Direction.NORTH);
         int iS = getConnectedAnchorIndex(world, pos, Direction.SOUTH);
         int iE = getConnectedAnchorIndex(world, pos, Direction.EAST);
         int iW = getConnectedAnchorIndex(world, pos, Direction.WEST);
 
+        // Any non-zero result is a connection
         int connectionCount = (iN != 0 ? 1 : 0) + (iS != 0 ? 1 : 0) + (iE != 0 ? 1 : 0) + (iW != 0 ? 1 : 0);
         boolean isPerp = (iN != 0 || iS != 0) && (iE != 0 || iW != 0);
 
-        if (connectionCount == 2 && isPerp && (iN > 0 || iS > 0 || iE > 0 || iW > 0)) {
-            int vIdx = (iN != 0) ? iN : iS;
+        // --- DIVIDER CHECK (PRIORITY) ---
+        // If it's a 2-way turn, we force it to try and be a Double Divider.
+        if (connectionCount == 2 && isPerp) {
+            // Resolve active anchors
+            int vIdxRaw = (iN != 0) ? iN : iS;
             Direction vDir = (iN != 0) ? Direction.NORTH : Direction.SOUTH;
-            int hIdx = (iE != 0) ? iE : iW;
+            int hIdxRaw = (iE != 0) ? iE : iW;
             Direction hDir = (iE != 0) ? Direction.EAST : Direction.WEST;
 
-            String orient = resolveOrientation(vDir, hDir);
-            String quad = resolveQuadrant(orient, vIdx, hIdx);
+            // In a 2x2, the scanner might return -1 if it doesn't "know" it's 2-wide yet.
+            // We normalize these to 1 or 2 based on distances to the hub's edges.
+            int vIdx = resolveMicroLaneIndex(world, pos, vDir);
+            int hIdx = resolveMicroLaneIndex(world, pos, hDir);
 
-            return state.setValue(TEXTURE, RoadTexture.valueOf("DOUBLE_DIVIDER_L_" + quad + "_" + orient));
+            if (vIdx > 0 && hIdx > 0) {
+                String orient = resolveOrientation(vDir, hDir);
+                String quad = resolveQuadrant(orient, vIdx, hIdx);
+                return state.setValue(TEXTURE, RoadTexture.valueOf("DOUBLE_DIVIDER_L_" + quad + "_" + orient));
+            }
         }
 
+        // --- SHOULDER FALLBACK ---
+        // If it wasn't a 2-way turn (or the divider math failed), use standard edges.
         if (connectionCount == 2) {
             return resolveDoubleLTurn(world, pos, state);
         }
@@ -428,6 +441,18 @@ public class RoadBlock extends Block {
         if (!isRoad(world, pos.north().east())) return state.setValue(TEXTURE, RoadTexture.SHOULDER_CORNER_NORTHEAST);
         if (!isRoad(world, pos.south().west())) return state.setValue(TEXTURE, RoadTexture.SHOULDER_CORNER_SOUTHWEST);
         return state.setValue(TEXTURE, RoadTexture.SHOULDER_CORNER_SOUTHEAST);
+    }
+
+    private int resolveMicroLaneIndex(Level world, BlockPos pos, Direction scanDir) {
+        Direction widthDir = (scanDir.getAxis() == Direction.Axis.X) ? Direction.NORTH : Direction.WEST;
+        
+        boolean hasLeft = isRoad(world, pos.relative(widthDir));
+        boolean hasRight = isRoad(world, pos.relative(widthDir.getOpposite()));
+
+        if (hasLeft && !hasRight) return 2;
+        if (!hasLeft && hasRight) return 1;
+
+        return 0;
     }
 
     private BlockState resolveSingleLTurn(Level world, BlockPos pos, BlockState state) {
