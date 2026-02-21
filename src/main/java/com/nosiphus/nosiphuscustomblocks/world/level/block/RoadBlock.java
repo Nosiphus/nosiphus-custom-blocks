@@ -324,7 +324,6 @@ public class RoadBlock extends Block {
     // --- HUB SUB-HANDLERS ---
 
     private BlockState handleDoubleIntersection(Level world, BlockPos pos, BlockState state) {
-        // 1. DISCOVERY
         int iN = getConnectedAnchorIndex(world, pos, Direction.NORTH);
         int iS = getConnectedAnchorIndex(world, pos, Direction.SOUTH);
         int iE = getConnectedAnchorIndex(world, pos, Direction.EAST);
@@ -333,13 +332,18 @@ public class RoadBlock extends Block {
         int connectionCount = (iN != 0 ? 1 : 0) + (iS != 0 ? 1 : 0) + (iE != 0 ? 1 : 0) + (iW != 0 ? 1 : 0);
         boolean isPerp = (iN != 0 || iS != 0) && (iE != 0 || iW != 0);
 
-        // --- CASE 0: UNCONNECTED HUB ---
-        // If no external roads are found, use the multiblock outside corner logic
+        // --- CASE 0: COMPLETELY UNCONNECTED ---
         if (connectionCount == 0) {
             return resolveShoulderTexture(world, pos, state, 3);
         }
 
-        // --- CASE A: 2-WAY L-TURN (Painted) ---
+        // --- CASE 1: THE STUB (1 Connection) ---
+        if (connectionCount == 1) {
+            Direction roadDir = (iN != 0) ? Direction.NORTH : (iS != 0) ? Direction.SOUTH : (iE != 0) ? Direction.EAST : Direction.WEST;
+            return resolveDoubleStub(world, pos, state, roadDir);
+        }
+
+        // --- CASE 2: THE 2-WAY L-TURN (Painted) ---
         if (connectionCount == 2 && isPerp) {
             int vDirIdx = (iN != 0) ? iN : iS;
             Direction vDir = (iN != 0) ? Direction.NORTH : Direction.SOUTH;
@@ -356,17 +360,10 @@ public class RoadBlock extends Block {
             }
         }
 
-        // --- CASE B: 3-WAY T-JUNCTION ---
-        if (connectionCount == 3) {
-            return resolveDoubleT(world, pos, state);
-        }
+        // --- CASE 3 & 4: T-JUNCTION & CROSSING ---
+        if (connectionCount == 3) return resolveDoubleT(world, pos, state);
+        if (connectionCount == 4) return resolveDoubleCross(world, pos, state);
 
-        // --- CASE C: 4-WAY CROSSING ---
-        if (connectionCount == 4) {
-            return resolveDoubleCross(world, pos, state);
-        }
-
-        // Fallback for 2-way straights or misaligned connections
         return resolveDoubleLTurn(world, pos, state);
     }
 
@@ -420,6 +417,42 @@ public class RoadBlock extends Block {
         int h = (dE == 1 || dW == 2) ? 1 : 2;
 
         return state.setValue(TEXTURE, RoadTexture.valueOf("DOUBLE_DIVIDER_L_" + resolveQuadrant(orient, v, h) + "_" + orient));
+    }
+
+    private BlockState resolveDoubleStub(Level world, BlockPos pos, BlockState state, Direction roadDir) {
+        // Relative positions within the 2x2
+        boolean isNorthPos = isRoadAxis(world, pos.south(), Direction.Axis.Y);
+        boolean isWestPos = isRoadAxis(world, pos.east(), Direction.Axis.Y);
+
+        if (roadDir == Direction.NORTH) {
+            // Near side (North blocks) gets Edges
+            if (isNorthPos) return state.setValue(TEXTURE, isWestPos ? RoadTexture.SHOULDER_EDGE_WEST : RoadTexture.SHOULDER_EDGE_EAST);
+            // Far side (South blocks) gets Corners - SW swapped to NE, SE swapped to NW
+            return state.setValue(TEXTURE, isWestPos ? RoadTexture.SHOULDER_OUTSIDE_CORNER_NORTHEAST : RoadTexture.SHOULDER_OUTSIDE_CORNER_NORTHWEST);
+        }
+
+        if (roadDir == Direction.SOUTH) {
+            // Near side (South blocks) gets Edges
+            if (!isNorthPos) return state.setValue(TEXTURE, isWestPos ? RoadTexture.SHOULDER_EDGE_WEST : RoadTexture.SHOULDER_EDGE_EAST);
+            // Far side (North blocks) gets Corners - NW swapped to SE, NE swapped to SW
+            return state.setValue(TEXTURE, isWestPos ? RoadTexture.SHOULDER_OUTSIDE_CORNER_SOUTHEAST : RoadTexture.SHOULDER_OUTSIDE_CORNER_SOUTHWEST);
+        }
+
+        if (roadDir == Direction.EAST) {
+            // Near side (East blocks) gets Edges
+            if (!isWestPos) return state.setValue(TEXTURE, isNorthPos ? RoadTexture.SHOULDER_EDGE_NORTH : RoadTexture.SHOULDER_EDGE_SOUTH);
+            // Far side (West blocks) gets Corners - NW swapped to SE, SW swapped to NE
+            return state.setValue(TEXTURE, isNorthPos ? RoadTexture.SHOULDER_OUTSIDE_CORNER_SOUTHEAST : RoadTexture.SHOULDER_OUTSIDE_CORNER_NORTHEAST);
+        }
+
+        if (roadDir == Direction.WEST) {
+            // Near side (West blocks) gets Edges
+            if (isWestPos) return state.setValue(TEXTURE, isNorthPos ? RoadTexture.SHOULDER_EDGE_NORTH : RoadTexture.SHOULDER_EDGE_SOUTH);
+            // Far side (East blocks) gets Corners - NE swapped to SW, SE swapped to NW
+            return state.setValue(TEXTURE, isNorthPos ? RoadTexture.SHOULDER_OUTSIDE_CORNER_SOUTHWEST : RoadTexture.SHOULDER_OUTSIDE_CORNER_NORTHWEST);
+        }
+
+        return state.setValue(TEXTURE, RoadTexture.SHOULDER_SINGLE);
     }
 
     private BlockState resolveDoubleT(Level world, BlockPos pos, BlockState state) {
