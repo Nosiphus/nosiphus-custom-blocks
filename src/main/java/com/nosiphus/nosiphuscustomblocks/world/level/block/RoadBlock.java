@@ -169,20 +169,25 @@ public class RoadBlock extends Block {
         // 1. ISOLATION FILTERS
         if (!isRoad(world, pos.north().east()) && !isRoad(world, pos.north().west()) &&
                 !isRoad(world, pos.south().east()) && !isRoad(world, pos.south().west())) {
+            logDebug(pos, "[Flow Trace] -> handleSingleIntersection");
             return handleSingleIntersection(world, pos, state);
         }
 
-        if (countYNeighbors(world, pos, 1) == 3 && isDoubleHub(world, pos)) {
+        // 2. 2x2 HUB HANDSHAKE (Highest Hub Priority)
+        // This performs the mutual verification you described.
+        if (isDoubleHub(world, pos)) {
+            logDebug(pos, "[Flow Trace] -> handleDoubleIntersection");
             return handleDoubleIntersection(world, pos, state);
         }
 
-        // 2. PERIMETER FILTER (Shoulders/Sidewalks)
+        // 3. PERIMETER FILTER (Multiblock Shoulders/Sidewalks)
         int diagNonRoads = countDiagonalNonRoads(world, pos);
         if (diagNonRoads > 0) {
+            logDebug(pos, "[Flow Trace] -> resolveShoulderTexture (diagNonRoads:" + diagNonRoads + ")");
             return resolveShoulderTexture(world, pos, state, diagNonRoads);
         }
 
-        // 3. AGNOSTIC CONNECTION DISCOVERY
+        // 4. MULTIBLOCK CONNECTION DISCOVERY
         int iN = getConnectedAnchorIndex(world, pos, Direction.NORTH);
         int iS = getConnectedAnchorIndex(world, pos, Direction.SOUTH);
         int iE = getConnectedAnchorIndex(world, pos, Direction.EAST);
@@ -190,25 +195,20 @@ public class RoadBlock extends Block {
 
         int connectionCount = (iN != 0 ? 1 : 0) + (iS != 0 ? 1 : 0) + (iE != 0 ? 1 : 0) + (iW != 0 ? 1 : 0);
 
-        String neighbors = String.format("N:%d S:%d E:%d W:%d (Total:%d)", iN, iS, iE, iW, connectionCount);
-
-        // GATE A: JUNCTION SHIELD
         if (connectionCount > 2) {
-            logDebug(pos, neighbors + " -> JUNCTION (LANE)");
+            logDebug(pos, "[Flow Trace] -> JUNCTION Shield (LANE)");
             return state.setValue(TEXTURE, RoadTexture.LANE);
         }
 
-        // GATE B: L-TURN PAINT ROOM
         boolean isPerpendicular = (iN != 0 || iS != 0) && (iE != 0 || iW != 0);
         if (connectionCount == 2 && isPerpendicular) {
             if (iN > 0 || iS > 0 || iE > 0 || iW > 0) {
-                BlockState result = handleLTurnPaint(world, pos, state, iN, iS, iE, iW);
-                logDebug(pos, neighbors + " -> L-TURN PAINT (" + result.getValue(TEXTURE).getSerializedName() + ")");
-                return result;
+                logDebug(pos, "[Flow Trace] -> handleLTurnPaint");
+                return handleLTurnPaint(world, pos, state, iN, iS, iE, iW);
             }
         }
 
-        logDebug(pos, neighbors + " -> FALLBACK (LANE)");
+        logDebug(pos, "[Flow Trace] -> FALLBACK (LANE)");
         return state.setValue(TEXTURE, RoadTexture.LANE);
     }
 
@@ -324,50 +324,36 @@ public class RoadBlock extends Block {
     // --- HUB SUB-HANDLERS ---
 
     private BlockState handleDoubleIntersection(Level world, BlockPos pos, BlockState state) {
-        // 1. AGNOSTIC DISCOVERY (The "Laser Scanner")
+        logDebug(pos, "!!! ENTRY SUCCESS !!! -> Entering handleDoubleIntersection logic");
+
         int iN = getConnectedAnchorIndex(world, pos, Direction.NORTH);
         int iS = getConnectedAnchorIndex(world, pos, Direction.SOUTH);
         int iE = getConnectedAnchorIndex(world, pos, Direction.EAST);
         int iW = getConnectedAnchorIndex(world, pos, Direction.WEST);
 
-        // Any non-zero result is a connection
         int connectionCount = (iN != 0 ? 1 : 0) + (iS != 0 ? 1 : 0) + (iE != 0 ? 1 : 0) + (iW != 0 ? 1 : 0);
         boolean isPerp = (iN != 0 || iS != 0) && (iE != 0 || iW != 0);
 
-        // --- DIVIDER CHECK (PRIORITY) ---
-        // If it's a 2-way turn, we force it to try and be a Double Divider.
         if (connectionCount == 2 && isPerp) {
-            // Resolve active anchors
-            int vIdxRaw = (iN != 0) ? iN : iS;
+            int vDirIdx = (iN != 0) ? iN : iS;
             Direction vDir = (iN != 0) ? Direction.NORTH : Direction.SOUTH;
-            int hIdxRaw = (iE != 0) ? iE : iW;
+            int hDirIdx = (iE != 0) ? iE : iW;
             Direction hDir = (iE != 0) ? Direction.EAST : Direction.WEST;
 
-            // In a 2x2, the scanner might return -1 if it doesn't "know" it's 2-wide yet.
-            // We normalize these to 1 or 2 based on distances to the hub's edges.
-            int vIdx = resolveMicroLaneIndex(world, pos, vDir);
-            int hIdx = resolveMicroLaneIndex(world, pos, hDir);
+            int vFinal = (vDirIdx == -1) ? resolveMicroLaneIndex(world, pos, vDir) : vDirIdx;
+            int hFinal = (hDirIdx == -1) ? resolveMicroLaneIndex(world, pos, hDir) : hDirIdx;
 
-            if (vIdx > 0 && hIdx > 0) {
+            if (vFinal > 0 && hFinal > 0) {
                 String orient = resolveOrientation(vDir, hDir);
-                String quad = resolveQuadrant(orient, vIdx, hIdx);
+                String quad = resolveQuadrant(orient, vFinal, hFinal);
                 return state.setValue(TEXTURE, RoadTexture.valueOf("DOUBLE_DIVIDER_L_" + quad + "_" + orient));
             }
         }
 
-        // --- SHOULDER FALLBACK ---
-        // If it wasn't a 2-way turn (or the divider math failed), use standard edges.
-        if (connectionCount == 2) {
-            return resolveDoubleLTurn(world, pos, state);
-        }
-        if (connectionCount == 3) {
-            return resolveDoubleT(world, pos, state);
-        }
-        if (connectionCount == 4) {
-            return resolveDoubleCross(world, pos, state);
-        }
+        if (connectionCount == 3) return resolveDoubleT(world, pos, state);
+        if (connectionCount == 4) return resolveDoubleCross(world, pos, state);
 
-        return state.setValue(TEXTURE, RoadTexture.SHOULDER_SINGLE);
+        return resolveDoubleLTurn(world, pos, state);
     }
 
     private BlockState handleSingleIntersection(Level world, BlockPos pos, BlockState state) {
@@ -449,8 +435,8 @@ public class RoadBlock extends Block {
         boolean hasLeft = isRoad(world, pos.relative(widthDir));
         boolean hasRight = isRoad(world, pos.relative(widthDir.getOpposite()));
 
-        if (hasLeft && !hasRight) return 2; // Right side of a 2-wide road
-        if (!hasLeft && hasRight) return 1; // Left side of a 2-wide road
+        if (hasLeft && !hasRight) return 2;
+        if (!hasLeft && hasRight) return 1;
 
         return 0;
     }
@@ -507,17 +493,14 @@ public class RoadBlock extends Block {
             BlockPos checkPos = pos.relative(scanDir, i);
             BlockState currentState = world.getBlockState(checkPos);
 
-            // TERMINATION CHECK: If asphalt ends before hitting a parent road, return 0
             if (!currentState.is(this)) {
                 return 0;
             }
 
-            // PUNCH-THROUGH: Skip other intersection blocks
             if (currentState.getValue(AXIS) == Direction.Axis.Y) {
                 continue;
             }
 
-            // CONNECTION HANDSHAKE
             Direction.Axis roadAxis = currentState.getValue(AXIS);
             int leftSide = 0;
             while (leftSide < 8 && isRoadAxis(world, checkPos.relative(widthDir, leftSide + 1), roadAxis)) {
@@ -531,14 +514,14 @@ public class RoadBlock extends Block {
             int totalWidth = leftSide + rightSide + 1;
 
             if (totalWidth % 2 != 0 && leftSide == rightSide) {
-                return 3; // Odd Center
+                return 3;
             }
             if (totalWidth % 2 == 0) {
-                if (leftSide == (totalWidth / 2) - 1) return 1; // Even Left
-                if (leftSide == totalWidth / 2) return 2;       // Even Right
+                if (leftSide == (totalWidth / 2) - 1) return 1;
+                if (leftSide == totalWidth / 2) return 2;
             }
 
-            return -1; // Agnostic Road Found
+            return -1;
         }
         return 0;
     }
@@ -636,13 +619,42 @@ public class RoadBlock extends Block {
     }
 
     private boolean isDoubleHub(Level world, BlockPos pos) {
-        Direction missing = null;
+        Direction vert = null;
+        Direction horiz = null;
+        int cardinalY = 0;
+
+        // Step 1: Identify the cardinal Y-neighbors
         for (Direction d : Direction.Plane.HORIZONTAL) {
-            if (!isRoadAxis(world, pos.relative(d), Direction.Axis.Y)) {
-                missing = d;
+            if (isRoadAxis(world, pos.relative(d), Direction.Axis.Y)) {
+                cardinalY++;
+                if (d.getAxis() == Direction.Axis.Z) vert = d;
+                else horiz = d;
             }
         }
-        return missing != null && !isRoad(world, pos.relative(missing.getOpposite()).relative(missing.getClockWise()));
+
+        // A 2x2 block MUST have exactly 2 cardinal Y-neighbors
+        if (cardinalY != 2 || vert == null || horiz == null) return false;
+
+        // Step 2: Identify the diagonal partner
+        BlockPos diagPos = pos.relative(vert).relative(horiz);
+        if (!isRoadAxis(world, diagPos, Direction.Axis.Y)) return false;
+
+        // Step 3: THE HANDSHAKE
+        // Ask the three neighbors if they ALSO have exactly 2 cardinal Y-neighbors.
+        // This distinguishes a 2x2 from a corner of a 3x3 or 5x5.
+        if (countCardinalYNeighbors(world, pos.relative(vert)) != 2) return false;
+        if (countCardinalYNeighbors(world, pos.relative(horiz)) != 2) return false;
+        if (countCardinalYNeighbors(world, diagPos) != 2) return false;
+
+        return true;
+    }
+
+    private int countCardinalYNeighbors(Level world, BlockPos pos) {
+        int count = 0;
+        for (Direction d : Direction.Plane.HORIZONTAL) {
+            if (isRoadAxis(world, pos.relative(d), Direction.Axis.Y)) count++;
+        }
+        return count;
     }
 
     private int countSimpleXzConnections(Level world, BlockPos pos) {
