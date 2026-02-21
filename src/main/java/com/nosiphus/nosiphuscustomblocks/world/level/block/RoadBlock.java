@@ -445,12 +445,12 @@ public class RoadBlock extends Block {
 
     private int resolveMicroLaneIndex(Level world, BlockPos pos, Direction scanDir) {
         Direction widthDir = (scanDir.getAxis() == Direction.Axis.X) ? Direction.NORTH : Direction.WEST;
-        
+
         boolean hasLeft = isRoad(world, pos.relative(widthDir));
         boolean hasRight = isRoad(world, pos.relative(widthDir.getOpposite()));
 
-        if (hasLeft && !hasRight) return 2;
-        if (!hasLeft && hasRight) return 1;
+        if (hasLeft && !hasRight) return 2; // Right side of a 2-wide road
+        if (!hasLeft && hasRight) return 1; // Left side of a 2-wide road
 
         return 0;
     }
