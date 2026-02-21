@@ -14,11 +14,8 @@ import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.EnumProperty;
 import org.jetbrains.annotations.Nullable;
-import org.slf4j.Logger;
-import com.mojang.logging.LogUtils;
 
 public class RoadBlock extends Block {
-    private static final Logger LOGGER = LogUtils.getLogger();
     public static final EnumProperty<Direction.Axis> AXIS = BlockStateProperties.AXIS;
     public static final EnumProperty<RoadTexture> TEXTURE = EnumProperty.create("texture", RoadTexture.class);
 
@@ -109,27 +106,18 @@ public class RoadBlock extends Block {
 
         private final String name;
 
-        RoadTexture(String name) {
+        RoadTexture (String name) {
             this.name = name;
         }
-
         @Override
         public String getSerializedName() {
             return this.name;
         }
     }
 
-    // --- CORE OVERRIDES ---
-
-    private void logDebug(BlockPos pos, String message) {
-        LOGGER.info("[RoadDebug] At {}: {}", pos.toShortString(), message);
-    }
-
     @Override
     public void setPlacedBy(Level level, BlockPos pos, BlockState state, @Nullable LivingEntity placer, ItemStack stack) {
-        if (!level.isClientSide) {
-            updateRadius(level, pos, 16);
-        }
+        if (!level.isClientSide) updateRadius(level, pos, 16);
     }
 
     private void updateRadius(Level level, BlockPos center, int radius) {
@@ -154,40 +142,32 @@ public class RoadBlock extends Block {
         return super.updateShape(state, direction, neighborState, level, pos, neighborPos);
     }
 
-    // --- MAIN LOGIC FLOW ---
+    // --- TOP-LEVEL LOGIC ---
 
     private BlockState calculateState(Level world, BlockPos pos, BlockState state) {
         Direction.Axis axis = state.getValue(AXIS);
-        if (axis == Direction.Axis.Y) {
-            return calculateIntersection(world, pos, state);
-        } else {
-            return calculateStraightRoad(world, pos, state, axis);
-        }
+        return (axis == Direction.Axis.Y) ? calculateIntersection(world, pos, state) : calculateStraightRoad(world, pos, state, axis);
     }
 
     private BlockState calculateIntersection(Level world, BlockPos pos, BlockState state) {
         // 1. ISOLATION FILTERS
         if (!isRoad(world, pos.north().east()) && !isRoad(world, pos.north().west()) &&
                 !isRoad(world, pos.south().east()) && !isRoad(world, pos.south().west())) {
-            logDebug(pos, "[Flow Trace] -> handleSingleIntersection");
             return handleSingleIntersection(world, pos, state);
         }
 
         // 2. 2x2 HUB HANDSHAKE (Highest Hub Priority)
-        // This performs the mutual verification you described.
         if (isDoubleHub(world, pos)) {
-            logDebug(pos, "[Flow Trace] -> handleDoubleIntersection");
             return handleDoubleIntersection(world, pos, state);
         }
 
-        // 3. PERIMETER FILTER (Multiblock Shoulders/Sidewalks)
+        // 3. MULTIBLOCK PERIMETER FILTER
         int diagNonRoads = countDiagonalNonRoads(world, pos);
         if (diagNonRoads > 0) {
-            logDebug(pos, "[Flow Trace] -> resolveShoulderTexture (diagNonRoads:" + diagNonRoads + ")");
             return resolveShoulderTexture(world, pos, state, diagNonRoads);
         }
 
-        // 4. MULTIBLOCK CONNECTION DISCOVERY
+        // 4. MULTIBLOCK DISCOVERY
         int iN = getConnectedAnchorIndex(world, pos, Direction.NORTH);
         int iS = getConnectedAnchorIndex(world, pos, Direction.SOUTH);
         int iE = getConnectedAnchorIndex(world, pos, Direction.EAST);
@@ -196,20 +176,57 @@ public class RoadBlock extends Block {
         int connectionCount = (iN != 0 ? 1 : 0) + (iS != 0 ? 1 : 0) + (iE != 0 ? 1 : 0) + (iW != 0 ? 1 : 0);
 
         if (connectionCount > 2) {
-            logDebug(pos, "[Flow Trace] -> JUNCTION Shield (LANE)");
             return state.setValue(TEXTURE, RoadTexture.LANE);
         }
 
         boolean isPerpendicular = (iN != 0 || iS != 0) && (iE != 0 || iW != 0);
         if (connectionCount == 2 && isPerpendicular) {
             if (iN > 0 || iS > 0 || iE > 0 || iW > 0) {
-                logDebug(pos, "[Flow Trace] -> handleLTurnPaint");
                 return handleLTurnPaint(world, pos, state, iN, iS, iE, iW);
             }
         }
 
-        logDebug(pos, "[Flow Trace] -> FALLBACK (LANE)");
         return state.setValue(TEXTURE, RoadTexture.LANE);
+    }
+
+    // --- HUB SPECIALISTS ---
+
+    private BlockState handleDoubleIntersection(Level world, BlockPos pos, BlockState state) {
+        int iN = getConnectedAnchorIndex(world, pos, Direction.NORTH);
+        int iS = getConnectedAnchorIndex(world, pos, Direction.SOUTH);
+        int iE = getConnectedAnchorIndex(world, pos, Direction.EAST);
+        int iW = getConnectedAnchorIndex(world, pos, Direction.WEST);
+
+        int connectionCount = (iN != 0 ? 1 : 0) + (iS != 0 ? 1 : 0) + (iE != 0 ? 1 : 0) + (iW != 0 ? 1 : 0);
+        boolean isPerp = (iN != 0 || iS != 0) && (iE != 0 || iW != 0);
+
+        if (connectionCount == 0) return resolveShoulderTexture(world, pos, state, 3);
+
+        if (connectionCount == 1) {
+            Direction roadDir = (iN != 0) ? Direction.NORTH : (iS != 0) ? Direction.SOUTH : (iE != 0) ? Direction.EAST : Direction.WEST;
+            return resolveDoubleStub(world, pos, state, roadDir);
+        }
+
+        if (connectionCount == 2 && isPerp) {
+            int vIdxRaw = (iN != 0) ? iN : iS;
+            Direction vDir = (iN != 0) ? Direction.NORTH : Direction.SOUTH;
+            int hIdxRaw = (iE != 0) ? iE : iW;
+            Direction hDir = (iE != 0) ? Direction.EAST : Direction.WEST;
+
+            int vFinal = (vIdxRaw == -1) ? resolveMicroLaneIndex(world, pos, vDir) : vIdxRaw;
+            int hFinal = (hIdxRaw == -1) ? resolveMicroLaneIndex(world, pos, hDir) : hIdxRaw;
+
+            if (vFinal > 0 && hFinal > 0) {
+                String orient = resolveOrientation(vDir, hDir);
+                String quad = resolveQuadrant(orient, vFinal, hFinal);
+                return state.setValue(TEXTURE, RoadTexture.valueOf("DOUBLE_DIVIDER_L_" + quad + "_" + orient));
+            }
+        }
+
+        if (connectionCount == 3) return resolveDoubleT(world, pos, state);
+        if (connectionCount == 4) return resolveDoubleCross(world, pos, state);
+
+        return resolveDoubleLTurn(world, pos, state);
     }
 
     private BlockState handleLTurnPaint(Level world, BlockPos pos, BlockState state, int iN, int iS, int iE, int iW) {
@@ -225,156 +242,34 @@ public class RoadBlock extends Block {
         float limit = (roadWidth % 2 != 0) ? (roadWidth / 2.0f + 0.5f) : (roadWidth / 2.0f + 1.0f);
         String orient = resolveOrientation(vDir, hDir);
 
-        // Midpoint Shield
-        if (dV > limit || dH > limit) {
-            return state.setValue(TEXTURE, RoadTexture.LANE);
-        }
+        if (dV > limit || dH > limit) return state.setValue(TEXTURE, RoadTexture.LANE);
 
-        // Corner Logic
         if (vIdx > 0 && hIdx > 0) {
             if (roadWidth % 2 != 0) {
-                if (vIdx == 3 && hIdx == 3) {
-                    return state.setValue(TEXTURE, RoadTexture.valueOf("ODD_DIVIDER_L_" + orient));
-                }
+                if (vIdx == 3 && hIdx == 3) return state.setValue(TEXTURE, RoadTexture.valueOf("ODD_DIVIDER_L_" + orient));
             } else if (vIdx < 3 && hIdx < 3) {
                 String pref = (roadWidth == 2) ? "DOUBLE_DIVIDER_L_" : "EVEN_DIVIDER_L_";
                 return state.setValue(TEXTURE, RoadTexture.valueOf(pref + resolveQuadrant(orient, vIdx, hIdx) + "_" + orient));
             }
         }
 
-        // Leg Dividers
         if (vIdx > 0) {
-            if (vIdx == 3) {
-                return state.setValue(TEXTURE, RoadTexture.ODD_DIVIDER_Y_NORTHSOUTH);
-            }
+            if (vIdx == 3) return state.setValue(TEXTURE, RoadTexture.ODD_DIVIDER_Y_NORTHSOUTH);
             return state.setValue(TEXTURE, (vIdx == 1) ? RoadTexture.EVEN_DIVIDER_LEFT_Y_NORTHSOUTH : RoadTexture.EVEN_DIVIDER_RIGHT_Y_NORTHSOUTH);
         }
 
         if (hIdx > 0) {
-            if (hIdx == 3) {
-                return state.setValue(TEXTURE, RoadTexture.ODD_DIVIDER_Y_EASTWEST);
-            }
+            if (hIdx == 3) return state.setValue(TEXTURE, RoadTexture.ODD_DIVIDER_Y_EASTWEST);
             return state.setValue(TEXTURE, (hIdx == 1) ? RoadTexture.EVEN_DIVIDER_LEFT_Y_EASTWEST : RoadTexture.EVEN_DIVIDER_RIGHT_Y_EASTWEST);
         }
 
         return state.setValue(TEXTURE, RoadTexture.LANE);
     }
 
-    private BlockState calculateStraightRoad(Level world, BlockPos pos, BlockState state, Direction.Axis axis) {
-        Direction widthDir = (axis == Direction.Axis.X) ? Direction.SOUTH : Direction.EAST;
-        Direction flowDir = (axis == Direction.Axis.X) ? Direction.EAST : Direction.SOUTH;
-
-        int l = 0;
-        while (l < 8 && isRoadAxis(world, pos.relative(widthDir, l + 1), axis)) {
-            l++;
-        }
-
-        int r = 0;
-        while (r < 8 && isRoadAxis(world, pos.relative(widthDir.getOpposite(), r + 1), axis)) {
-            r++;
-        }
-
-        int totalWidth = l + r + 1;
-        int laneIndex = l;
-
-        if (!isRoadAxis(world, pos.relative(widthDir), axis) && !isRoadAxis(world, pos.relative(widthDir.getOpposite()), axis)) {
-            return handleSingleStraight(world, pos, state, flowDir);
-        }
-
-        if (totalWidth == 2) {
-            return handleDoubleStraight(world, pos, state, axis, flowDir, laneIndex);
-        }
-
-        BlockPos fHub = pos.relative(flowDir);
-        BlockPos bHub = pos.relative(flowDir.getOpposite());
-        if (isRoadAxis(world, fHub, Direction.Axis.Y) || isRoadAxis(world, bHub, Direction.Axis.Y)) {
-            BlockPos hub = isRoadAxis(world, fHub, Direction.Axis.Y) ? fHub : bHub;
-            if (countHubConnections(world, hub, totalWidth) >= 3) {
-                if (laneIndex == 0) {
-                    return state.setValue(TEXTURE, RoadTexture.SHOULDER_CROSSWALK_LEFT);
-                }
-                if (laneIndex == totalWidth - 1) {
-                    return state.setValue(TEXTURE, RoadTexture.SHOULDER_CROSSWALK_RIGHT);
-                }
-                return state.setValue(TEXTURE, RoadTexture.CROSSWALK);
-            }
-        }
-
-        if (laneIndex == 0) {
-            return state.setValue(TEXTURE, RoadTexture.SHOULDER_LEFT);
-        }
-        if (laneIndex == totalWidth - 1) {
-            return state.setValue(TEXTURE, RoadTexture.SHOULDER_RIGHT);
-        }
-        if (totalWidth >= 3 && totalWidth % 2 != 0 && laneIndex == totalWidth / 2) {
-            return state.setValue(TEXTURE, RoadTexture.ODD_DIVIDER);
-        }
-        if (totalWidth >= 4 && totalWidth % 2 == 0) {
-            if (laneIndex == (totalWidth / 2) - 1) {
-                return state.setValue(TEXTURE, RoadTexture.EVEN_DIVIDER_LEFT);
-            }
-            if (laneIndex == totalWidth / 2) {
-                return state.setValue(TEXTURE, RoadTexture.EVEN_DIVIDER_RIGHT);
-            }
-        }
-
-        return state.setValue(TEXTURE, RoadTexture.LANE);
-    }
-
-    // --- HUB SUB-HANDLERS ---
-
-    private BlockState handleDoubleIntersection(Level world, BlockPos pos, BlockState state) {
-        int iN = getConnectedAnchorIndex(world, pos, Direction.NORTH);
-        int iS = getConnectedAnchorIndex(world, pos, Direction.SOUTH);
-        int iE = getConnectedAnchorIndex(world, pos, Direction.EAST);
-        int iW = getConnectedAnchorIndex(world, pos, Direction.WEST);
-
-        int connectionCount = (iN != 0 ? 1 : 0) + (iS != 0 ? 1 : 0) + (iE != 0 ? 1 : 0) + (iW != 0 ? 1 : 0);
-        boolean isPerp = (iN != 0 || iS != 0) && (iE != 0 || iW != 0);
-
-        // --- CASE 0: COMPLETELY UNCONNECTED ---
-        if (connectionCount == 0) {
-            return resolveShoulderTexture(world, pos, state, 3);
-        }
-
-        // --- CASE 1: THE STUB (1 Connection) ---
-        if (connectionCount == 1) {
-            Direction roadDir = (iN != 0) ? Direction.NORTH : (iS != 0) ? Direction.SOUTH : (iE != 0) ? Direction.EAST : Direction.WEST;
-            return resolveDoubleStub(world, pos, state, roadDir);
-        }
-
-        // --- CASE 2: THE 2-WAY L-TURN (Painted) ---
-        if (connectionCount == 2 && isPerp) {
-            int vDirIdx = (iN != 0) ? iN : iS;
-            Direction vDir = (iN != 0) ? Direction.NORTH : Direction.SOUTH;
-            int hDirIdx = (iE != 0) ? iE : iW;
-            Direction hDir = (iE != 0) ? Direction.EAST : Direction.WEST;
-
-            int vFinal = (vDirIdx == -1) ? resolveMicroLaneIndex(world, pos, vDir) : vDirIdx;
-            int hFinal = (hDirIdx == -1) ? resolveMicroLaneIndex(world, pos, hDir) : hDirIdx;
-
-            if (vFinal > 0 && hFinal > 0) {
-                String orient = resolveOrientation(vDir, hDir);
-                String quad = resolveQuadrant(orient, vFinal, hFinal);
-                return state.setValue(TEXTURE, RoadTexture.valueOf("DOUBLE_DIVIDER_L_" + quad + "_" + orient));
-            }
-        }
-
-        // --- CASE 3 & 4: T-JUNCTION & CROSSING ---
-        if (connectionCount == 3) return resolveDoubleT(world, pos, state);
-        if (connectionCount == 4) return resolveDoubleCross(world, pos, state);
-
-        return resolveDoubleLTurn(world, pos, state);
-    }
-
     private BlockState handleSingleIntersection(Level world, BlockPos pos, BlockState state) {
         int c = countSimpleXzConnections(world, pos);
-        if (c == 2) {
-            return resolveSingleLTurn(world, pos, state);
-        }
-        if (c == 3) {
-            return resolveSingleT(world, pos, state);
-        }
+        if (c == 2) return resolveSingleLTurn(world, pos, state);
+        if (c == 3) return resolveSingleT(world, pos, state);
         return state.setValue(TEXTURE, RoadTexture.SHOULDER_SINGLE);
     }
 
@@ -406,57 +301,30 @@ public class RoadBlock extends Block {
         return state.setValue(TEXTURE, RoadTexture.SHOULDER_OUTSIDE_CORNER_SOUTHEAST);
     }
 
-    private BlockState resolveDoubleLTurn(Level world, BlockPos pos, BlockState state) {
-        int dN = getDistToAnchor(world, pos, Direction.NORTH);
-        int dE = getDistToAnchor(world, pos, Direction.EAST);
-        int dS = getDistToAnchor(world, pos, Direction.SOUTH);
-        int dW = getDistToAnchor(world, pos, Direction.WEST);
-
-        String orient = (dS < 3 && dE < 3) ? "NORTHWEST" : (dS < 3 && dW < 3) ? "NORTHEAST" : (dN < 3 && dW < 3) ? "SOUTHEAST" : "SOUTHWEST";
-        int v = (dN == 1 || dS == 2) ? 1 : 2;
-        int h = (dE == 1 || dW == 2) ? 1 : 2;
-
-        return state.setValue(TEXTURE, RoadTexture.valueOf("DOUBLE_DIVIDER_L_" + resolveQuadrant(orient, v, h) + "_" + orient));
-    }
-
     private BlockState resolveDoubleStub(Level world, BlockPos pos, BlockState state, Direction roadDir) {
-        // Relative positions within the 2x2
         boolean isNorthPos = isRoadAxis(world, pos.south(), Direction.Axis.Y);
         boolean isWestPos = isRoadAxis(world, pos.east(), Direction.Axis.Y);
 
         if (roadDir == Direction.NORTH) {
-            // Near side (North blocks) gets Edges
             if (isNorthPos) return state.setValue(TEXTURE, isWestPos ? RoadTexture.SHOULDER_EDGE_WEST : RoadTexture.SHOULDER_EDGE_EAST);
-            // Far side (South blocks) gets Corners - SW swapped to NE, SE swapped to NW
             return state.setValue(TEXTURE, isWestPos ? RoadTexture.SHOULDER_OUTSIDE_CORNER_NORTHEAST : RoadTexture.SHOULDER_OUTSIDE_CORNER_NORTHWEST);
         }
-
         if (roadDir == Direction.SOUTH) {
-            // Near side (South blocks) gets Edges
             if (!isNorthPos) return state.setValue(TEXTURE, isWestPos ? RoadTexture.SHOULDER_EDGE_WEST : RoadTexture.SHOULDER_EDGE_EAST);
-            // Far side (North blocks) gets Corners - NW swapped to SE, NE swapped to SW
             return state.setValue(TEXTURE, isWestPos ? RoadTexture.SHOULDER_OUTSIDE_CORNER_SOUTHEAST : RoadTexture.SHOULDER_OUTSIDE_CORNER_SOUTHWEST);
         }
-
         if (roadDir == Direction.EAST) {
-            // Near side (East blocks) gets Edges
             if (!isWestPos) return state.setValue(TEXTURE, isNorthPos ? RoadTexture.SHOULDER_EDGE_NORTH : RoadTexture.SHOULDER_EDGE_SOUTH);
-            // Far side (West blocks) gets Corners - NW swapped to SE, SW swapped to NE
             return state.setValue(TEXTURE, isNorthPos ? RoadTexture.SHOULDER_OUTSIDE_CORNER_SOUTHEAST : RoadTexture.SHOULDER_OUTSIDE_CORNER_NORTHEAST);
         }
-
         if (roadDir == Direction.WEST) {
-            // Near side (West blocks) gets Edges
             if (isWestPos) return state.setValue(TEXTURE, isNorthPos ? RoadTexture.SHOULDER_EDGE_NORTH : RoadTexture.SHOULDER_EDGE_SOUTH);
-            // Far side (East blocks) gets Corners - NE swapped to SW, SE swapped to NW
             return state.setValue(TEXTURE, isNorthPos ? RoadTexture.SHOULDER_OUTSIDE_CORNER_SOUTHWEST : RoadTexture.SHOULDER_OUTSIDE_CORNER_NORTHWEST);
         }
-
         return state.setValue(TEXTURE, RoadTexture.SHOULDER_SINGLE);
     }
 
     private BlockState resolveDoubleT(Level world, BlockPos pos, BlockState state) {
-        // Find which direction is NOT connected
         Direction missing = null;
         for (Direction d : Direction.Plane.HORIZONTAL) {
             if (getConnectedAnchorIndex(world, pos, d) == 0) {
@@ -464,26 +332,19 @@ public class RoadBlock extends Block {
                 break;
             }
         }
-
         if (missing == null) return resolveDoubleCross(world, pos, state);
 
-        // Get relative positioning within the 2x2 cluster
         boolean isNorthPos = isRoadAxis(world, pos.south(), Direction.Axis.Y);
         boolean isWestPos = isRoadAxis(world, pos.east(), Direction.Axis.Y);
 
-        // If this block is on the "Missing" side, it's a Straight Edge
-        if ((missing == Direction.NORTH && isNorthPos) ||
-                (missing == Direction.SOUTH && !isNorthPos) ||
-                (missing == Direction.EAST && !isWestPos) ||
-                (missing == Direction.WEST && isWestPos)) {
-
+        if ((missing == Direction.NORTH && isNorthPos) || (missing == Direction.SOUTH && !isNorthPos) ||
+                (missing == Direction.EAST && !isWestPos) || (missing == Direction.WEST && isWestPos)) {
             if (missing == Direction.NORTH) return state.setValue(TEXTURE, RoadTexture.SHOULDER_EDGE_NORTH);
             if (missing == Direction.SOUTH) return state.setValue(TEXTURE, RoadTexture.SHOULDER_EDGE_SOUTH);
             if (missing == Direction.EAST) return state.setValue(TEXTURE, RoadTexture.SHOULDER_EDGE_EAST);
             return state.setValue(TEXTURE, RoadTexture.SHOULDER_EDGE_WEST);
         }
 
-        // Otherwise, it is on a connected side and must be an Inner Corner
         if (isNorthPos && isWestPos) return state.setValue(TEXTURE, RoadTexture.SHOULDER_CORNER_NORTHWEST);
         if (isNorthPos && !isWestPos) return state.setValue(TEXTURE, RoadTexture.SHOULDER_CORNER_NORTHEAST);
         if (!isNorthPos && isWestPos) return state.setValue(TEXTURE, RoadTexture.SHOULDER_CORNER_SOUTHWEST);
@@ -497,24 +358,16 @@ public class RoadBlock extends Block {
         return state.setValue(TEXTURE, RoadTexture.SHOULDER_CORNER_SOUTHEAST);
     }
 
-    private int resolveMicroLaneIndex(Level world, BlockPos pos, Direction scanDir) {
-        Direction widthDir = (scanDir.getAxis() == Direction.Axis.X) ? Direction.NORTH : Direction.WEST;
-
-        boolean hasLeft = isRoad(world, pos.relative(widthDir));
-        boolean hasRight = isRoad(world, pos.relative(widthDir.getOpposite()));
-
-        if (hasLeft && !hasRight) return 2;
-        if (!hasLeft && hasRight) return 1;
-
-        return 0;
+    private BlockState resolveDoubleLTurn(Level world, BlockPos pos, BlockState state) {
+        int dN = getDistToAnchor(world, pos, Direction.NORTH), dE = getDistToAnchor(world, pos, Direction.EAST),
+                dS = getDistToAnchor(world, pos, Direction.SOUTH), dW = getDistToAnchor(world, pos, Direction.WEST);
+        String orient = (dS < 3 && dE < 3) ? "NORTHWEST" : (dS < 3 && dW < 3) ? "NORTHEAST" : (dN < 3 && dW < 3) ? "SOUTHEAST" : "SOUTHWEST";
+        int v = (dN == 1 || dS == 2) ? 1 : 2, h = (dE == 1 || dW == 2) ? 1 : 2;
+        return state.setValue(TEXTURE, RoadTexture.valueOf("DOUBLE_DIVIDER_L_" + resolveQuadrant(orient, v, h) + "_" + orient));
     }
 
     private BlockState resolveSingleLTurn(Level world, BlockPos pos, BlockState state) {
-        boolean n = isRoad(world, pos.north());
-        boolean s = isRoad(world, pos.south());
-        boolean e = isRoad(world, pos.east());
-        boolean w = isRoad(world, pos.west());
-
+        boolean n = isRoad(world, pos.north()), s = isRoad(world, pos.south()), e = isRoad(world, pos.east()), w = isRoad(world, pos.west());
         if (s && e) return state.setValue(TEXTURE, RoadTexture.SHOULDER_SINGLE_L_NORTHWEST);
         if (s && w) return state.setValue(TEXTURE, RoadTexture.SHOULDER_SINGLE_L_NORTHEAST);
         if (n && w) return state.setValue(TEXTURE, RoadTexture.SHOULDER_SINGLE_L_SOUTHEAST);
@@ -528,22 +381,44 @@ public class RoadBlock extends Block {
         return state.setValue(TEXTURE, RoadTexture.SHOULDER_SINGLE_T_WEST);
     }
 
-    private BlockState handleSingleStraight(Level world, BlockPos pos, BlockState state, Direction fDir) {
-        BlockPos f = pos.relative(fDir);
-        BlockPos b = pos.relative(fDir.getOpposite());
+    // --- STRAIGHT ROAD LOGIC ---
 
-        if (isRoadAxis(world, f, Direction.Axis.Y) || isRoadAxis(world, b, Direction.Axis.Y)) {
-            if (countSimpleHubConnections(world, isRoadAxis(world, f, Direction.Axis.Y) ? f : b) >= 3) {
-                return state.setValue(TEXTURE, RoadTexture.CROSSWALK_SINGLE);
+    private BlockState calculateStraightRoad(Level world, BlockPos pos, BlockState state, Direction.Axis axis) {
+        Direction widthDir = (axis == Direction.Axis.X) ? Direction.SOUTH : Direction.EAST;
+        Direction flowDir = (axis == Direction.Axis.X) ? Direction.EAST : Direction.SOUTH;
+
+        int l = 0; while (l < 8 && isRoadAxis(world, pos.relative(widthDir, l + 1), axis)) l++;
+        int r = 0; while (r < 8 && isRoadAxis(world, pos.relative(widthDir.getOpposite(), r + 1), axis)) r++;
+        int totalWidth = l + r + 1;
+        int laneIndex = l;
+
+        if (!isRoadAxis(world, pos.relative(widthDir), axis) && !isRoadAxis(world, pos.relative(widthDir.getOpposite()), axis)) {
+            return handleSingleIntersection(world, pos, state);
+        }
+        if (totalWidth == 2) return handleDoubleStraight(world, pos, state, axis, flowDir, laneIndex);
+
+        BlockPos fHub = pos.relative(flowDir), bHub = pos.relative(flowDir.getOpposite());
+        if (isRoadAxis(world, fHub, Direction.Axis.Y) || isRoadAxis(world, bHub, Direction.Axis.Y)) {
+            BlockPos hub = isRoadAxis(world, fHub, Direction.Axis.Y) ? fHub : bHub;
+            if (countHubConnections(world, hub, totalWidth) >= 3) {
+                if (laneIndex == 0) return state.setValue(TEXTURE, RoadTexture.SHOULDER_CROSSWALK_LEFT);
+                if (laneIndex == totalWidth - 1) return state.setValue(TEXTURE, RoadTexture.SHOULDER_CROSSWALK_RIGHT);
+                return state.setValue(TEXTURE, RoadTexture.CROSSWALK);
             }
         }
-        return state.setValue(TEXTURE, RoadTexture.SINGLE);
+
+        if (laneIndex == 0) return state.setValue(TEXTURE, RoadTexture.SHOULDER_LEFT);
+        if (laneIndex == totalWidth - 1) return state.setValue(TEXTURE, RoadTexture.SHOULDER_RIGHT);
+        if (totalWidth >= 3 && totalWidth % 2 != 0 && laneIndex == totalWidth / 2) return state.setValue(TEXTURE, RoadTexture.ODD_DIVIDER);
+        if (totalWidth >= 4 && totalWidth % 2 == 0) {
+            if (laneIndex == (totalWidth / 2) - 1) return state.setValue(TEXTURE, RoadTexture.EVEN_DIVIDER_LEFT);
+            if (laneIndex == totalWidth / 2) return state.setValue(TEXTURE, RoadTexture.EVEN_DIVIDER_RIGHT);
+        }
+        return state.setValue(TEXTURE, RoadTexture.LANE);
     }
 
     private BlockState handleDoubleStraight(Level world, BlockPos pos, BlockState state, Direction.Axis axis, Direction fDir, int lane) {
-        BlockPos f = pos.relative(fDir);
-        BlockPos b = pos.relative(fDir.getOpposite());
-
+        BlockPos f = pos.relative(fDir), b = pos.relative(fDir.getOpposite());
         if (isRoadAxis(world, f, Direction.Axis.Y) || isRoadAxis(world, b, Direction.Axis.Y)) {
             if (countHubConnections(world, isRoadAxis(world, f, Direction.Axis.Y) ? f : b, 2) >= 3) {
                 return state.setValue(TEXTURE, lane == 0 ? RoadTexture.SHOULDER_CROSSWALK_LEFT : RoadTexture.SHOULDER_CROSSWALK_RIGHT);
@@ -552,114 +427,37 @@ public class RoadBlock extends Block {
         return state.setValue(TEXTURE, lane == 0 ? RoadTexture.SHOULDER_DIVIDER_LEFT : RoadTexture.SHOULDER_DIVIDER_RIGHT);
     }
 
-    // --- GEOMETRY & SCANNING HELPERS ---
+    // --- STRUCTURAL SCANNING ---
 
     private int getConnectedAnchorIndex(Level world, BlockPos pos, Direction scanDir) {
         Direction widthDir = (scanDir.getAxis() == Direction.Axis.X) ? Direction.NORTH : Direction.WEST;
-
         for (int i = 1; i <= 16; i++) {
             BlockPos checkPos = pos.relative(scanDir, i);
-            BlockState currentState = world.getBlockState(checkPos);
+            BlockState s = world.getBlockState(checkPos);
+            if (!s.is(this)) return 0;
+            if (s.getValue(AXIS) == Direction.Axis.Y) continue;
 
-            if (!currentState.is(this)) {
-                return 0;
-            }
+            Direction.Axis ra = s.getValue(AXIS);
+            int l = 0; while (l < 8 && isRoadAxis(world, checkPos.relative(widthDir, l + 1), ra)) l++;
+            int r = 0; while (r < 8 && isRoadAxis(world, checkPos.relative(widthDir.getOpposite(), r + 1), ra)) r++;
 
-            if (currentState.getValue(AXIS) == Direction.Axis.Y) {
-                continue;
-            }
-
-            Direction.Axis roadAxis = currentState.getValue(AXIS);
-            int leftSide = 0;
-            while (leftSide < 8 && isRoadAxis(world, checkPos.relative(widthDir, leftSide + 1), roadAxis)) {
-                leftSide++;
-            }
-            int rightSide = 0;
-            while (rightSide < 8 && isRoadAxis(world, checkPos.relative(widthDir.getOpposite(), rightSide + 1), roadAxis)) {
-                rightSide++;
-            }
-
-            int totalWidth = leftSide + rightSide + 1;
-
-            if (totalWidth % 2 != 0 && leftSide == rightSide) {
-                return 3;
-            }
+            int totalWidth = l + r + 1;
+            if (totalWidth % 2 != 0 && l == r) return 3;
             if (totalWidth % 2 == 0) {
-                if (leftSide == (totalWidth / 2) - 1) return 1;
-                if (leftSide == totalWidth / 2) return 2;
+                if (l == (totalWidth / 2) - 1) return 1;
+                if (l == totalWidth / 2) return 2;
             }
-
             return -1;
         }
         return 0;
     }
 
-    private int determineIntersectionWidth(Level world, BlockPos pos) {
-        int n = getDistToAnchor(world, pos, Direction.NORTH);
-        int s = getDistToAnchor(world, pos, Direction.SOUTH);
-        int e = getDistToAnchor(world, pos, Direction.EAST);
-        int w = getDistToAnchor(world, pos, Direction.WEST);
-
-        if (n < 20 && s < 20) return n + s - 1;
-        if (e < 20 && w < 20) return e + w - 1;
-
-        if (n < 20) return getRoadWidthAtAnchor(world, pos, Direction.NORTH);
-        if (s < 20) return getRoadWidthAtAnchor(world, pos, Direction.SOUTH);
-        if (e < 20) return getRoadWidthAtAnchor(world, pos, Direction.EAST);
-        return getRoadWidthAtAnchor(world, pos, Direction.WEST);
-    }
-
-    private int getRoadWidthAtAnchor(Level world, BlockPos pos, Direction dir) {
-        for (int i = 1; i <= 16; i++) {
-            BlockPos p = pos.relative(dir, i);
-            BlockState s = world.getBlockState(p);
-            if (!s.is(this)) {
-                break;
-            }
-            if (s.getValue(AXIS) != Direction.Axis.Y) {
-                Direction widthDir = (dir.getAxis() == Direction.Axis.X) ? Direction.NORTH : Direction.WEST;
-                int l = 0;
-                while (l < 8 && isRoadAxis(world, p.relative(widthDir, l + 1), s.getValue(AXIS))) {
-                    l++;
-                }
-                int r = 0;
-                while (r < 8 && isRoadAxis(world, p.relative(widthDir.getOpposite(), r + 1), s.getValue(AXIS))) {
-                    r++;
-                }
-                return l + r + 1;
-            }
-        }
-        return 1;
-    }
-
-    private int getDistToAnchor(Level world, BlockPos pos, Direction scanDir) {
-        for (int i = 1; i <= 16; i++) {
-            BlockPos p = pos.relative(scanDir, i);
-            BlockState s = world.getBlockState(p);
-            if (!s.is(this)) return 99;
-            if (s.getValue(AXIS) != Direction.Axis.Y) return i;
-        }
-        return 99;
-    }
-
-    // --- BASE UTILITIES ---
-
-    private boolean isRoadAxis(Level level, BlockPos pos, Direction.Axis axis) {
-        BlockState s = level.getBlockState(pos);
-        return s.is(this) && s.getValue(AXIS) == axis;
-    }
-
-    private boolean isRoad(Level level, BlockPos pos) {
-        return level.getBlockState(pos).is(this);
-    }
-
-    private int countDiagonalNonRoads(Level world, BlockPos pos) {
-        int count = 0;
-        if (!isRoad(world, pos.north().east())) count++;
-        if (!isRoad(world, pos.north().west())) count++;
-        if (!isRoad(world, pos.south().east())) count++;
-        if (!isRoad(world, pos.south().west())) count++;
-        return count;
+    private int resolveMicroLaneIndex(Level world, BlockPos pos, Direction scanDir) {
+        Direction widthDir = (scanDir.getAxis() == Direction.Axis.X) ? Direction.NORTH : Direction.WEST;
+        boolean hasLeft = isRoad(world, pos.relative(widthDir)), hasRight = isRoad(world, pos.relative(widthDir.getOpposite()));
+        if (hasLeft && !hasRight) return 2;
+        if (!hasLeft && hasRight) return 1;
+        return 0;
     }
 
     private String resolveQuadrant(String orient, int v, int h) {
@@ -676,22 +474,11 @@ public class RoadBlock extends Block {
         return "SOUTHWEST";
     }
 
-    private int countYNeighbors(Level world, BlockPos pos, int r) {
-        int c = 0;
-        for (Direction d : Direction.Plane.HORIZONTAL) {
-            if (isRoadAxis(world, pos.relative(d), Direction.Axis.Y)) {
-                c++;
-            }
-        }
-        return c;
-    }
+    // --- GEOMETRY & NEIGHBORS ---
 
     private boolean isDoubleHub(Level world, BlockPos pos) {
-        Direction vert = null;
-        Direction horiz = null;
+        Direction vert = null, horiz = null;
         int cardinalY = 0;
-
-        // Step 1: Identify the cardinal Y-neighbors
         for (Direction d : Direction.Plane.HORIZONTAL) {
             if (isRoadAxis(world, pos.relative(d), Direction.Axis.Y)) {
                 cardinalY++;
@@ -699,22 +486,12 @@ public class RoadBlock extends Block {
                 else horiz = d;
             }
         }
-
-        // A 2x2 block MUST have exactly 2 cardinal Y-neighbors
         if (cardinalY != 2 || vert == null || horiz == null) return false;
-
-        // Step 2: Identify the diagonal partner
         BlockPos diagPos = pos.relative(vert).relative(horiz);
         if (!isRoadAxis(world, diagPos, Direction.Axis.Y)) return false;
-
-        // Step 3: THE HANDSHAKE
-        // Ask the three neighbors if they ALSO have exactly 2 cardinal Y-neighbors.
-        // This distinguishes a 2x2 from a corner of a 3x3 or 5x5.
-        if (countCardinalYNeighbors(world, pos.relative(vert)) != 2) return false;
-        if (countCardinalYNeighbors(world, pos.relative(horiz)) != 2) return false;
-        if (countCardinalYNeighbors(world, diagPos) != 2) return false;
-
-        return true;
+        return countCardinalYNeighbors(world, pos.relative(vert)) == 2 &&
+                countCardinalYNeighbors(world, pos.relative(horiz)) == 2 &&
+                countCardinalYNeighbors(world, diagPos) == 2;
     }
 
     private int countCardinalYNeighbors(Level world, BlockPos pos) {
@@ -725,58 +502,77 @@ public class RoadBlock extends Block {
         return count;
     }
 
+    private int determineIntersectionWidth(Level world, BlockPos pos) {
+        int n = getDistToAnchor(world, pos, Direction.NORTH), s = getDistToAnchor(world, pos, Direction.SOUTH),
+                e = getDistToAnchor(world, pos, Direction.EAST), w = getDistToAnchor(world, pos, Direction.WEST);
+        if (n < 20 && s < 20) return n + s - 1;
+        if (e < 20 && w < 20) return e + w - 1;
+        if (n < 20) return getRoadWidthAtAnchor(world, pos, Direction.NORTH);
+        if (s < 20) return getRoadWidthAtAnchor(world, pos, Direction.SOUTH);
+        if (e < 20) return getRoadWidthAtAnchor(world, pos, Direction.EAST);
+        return getRoadWidthAtAnchor(world, pos, Direction.WEST);
+    }
+
+    private int getRoadWidthAtAnchor(Level world, BlockPos pos, Direction dir) {
+        for (int i = 1; i <= 16; i++) {
+            BlockPos p = pos.relative(dir, i);
+            BlockState s = world.getBlockState(p);
+            if (!s.is(this)) break;
+            if (s.getValue(AXIS) != Direction.Axis.Y) {
+                Direction wd = (dir.getAxis() == Direction.Axis.X) ? Direction.NORTH : Direction.WEST;
+                int l = 0; while (l < 8 && isRoadAxis(world, p.relative(wd, l + 1), s.getValue(AXIS))) l++;
+                int r = 0; while (r < 8 && isRoadAxis(world, p.relative(wd.getOpposite(), r + 1), s.getValue(AXIS))) r++;
+                return l + r + 1;
+            }
+        }
+        return 1;
+    }
+
+    private int getDistToAnchor(Level world, BlockPos pos, Direction scanDir) {
+        for (int i = 1; i <= 16; i++) {
+            BlockPos p = pos.relative(scanDir, i);
+            BlockState state = world.getBlockState(p);
+            if (!state.is(this)) return 99;
+            if (state.getValue(AXIS) != Direction.Axis.Y) return i;
+        } return 99;
+    }
+
+    private boolean isRoadAxis(Level level, BlockPos pos, Direction.Axis axis) {
+        BlockState state = level.getBlockState(pos);
+        return state.is(this) && state.getValue(AXIS) == axis;
+    }
+
+    private boolean isRoad(Level level, BlockPos pos) {
+        return level.getBlockState(pos).is(this);
+    }
+
+    private int countDiagonalNonRoads(Level world, BlockPos pos) {
+        int count = 0;
+        if (!isRoad(world, pos.north().east())) count++;
+        if (!isRoad(world, pos.north().west())) count++;
+        if (!isRoad(world, pos.south().east())) count++;
+        if (!isRoad(world, pos.south().west())) count++;
+        return count;
+    }
+
     private int countSimpleXzConnections(Level world, BlockPos pos) {
         int c = 0;
-        for (Direction d : Direction.Plane.HORIZONTAL) {
-            if (isRoad(world, pos.relative(d)) && world.getBlockState(pos.relative(d)).getValue(AXIS) != Direction.Axis.Y) {
-                c++;
-            }
-        }
-        return c;
-    }
-
-    private int countScanConnections(Level world, BlockPos pos, int r) {
-        int c = 0;
-        for (Direction d : Direction.Plane.HORIZONTAL) {
-            for (int i = 1; i <= r; i++) {
-                BlockState s = world.getBlockState(pos.relative(d, i));
-                if (s.is(this) && s.getValue(AXIS) != Direction.Axis.Y) {
-                    c++;
-                    break;
-                }
-                if (!s.is(this)) break;
-            }
-        }
-        return c;
-    }
+        for (Direction d : Direction.Plane.HORIZONTAL)
+            if (isRoad(world, pos.relative(d)) && world.getBlockState(pos.relative(d)).getValue(AXIS) != Direction.Axis.Y) c++;
+        return c; }
 
     private int countHubConnections(Level world, BlockPos hub, int width) {
-        int c = 0;
-        for (Direction d : Direction.Plane.HORIZONTAL) {
+        int count = 0; for (Direction direction : Direction.Plane.HORIZONTAL) {
             for (int i = 1; i <= width + 1; i++) {
-                BlockState s = world.getBlockState(hub.relative(d, i));
-                if (s.is(this) && s.getValue(AXIS) != Direction.Axis.Y) {
-                    c++;
-                    break;
-                }
-                if (!s.is(this)) break;
+                BlockState state = world.getBlockState(hub.relative(direction, i));
+                if (state.is(this) && state.getValue(AXIS) != Direction.Axis.Y) {
+                    count++; break;
+                } if (!state.is(this)) break;
             }
         }
-        return c;
-    }
-
-    private int countSimpleHubConnections(Level world, BlockPos hub) {
-        int c = 0;
-        for (Direction d : Direction.Plane.HORIZONTAL) {
-            if (isRoad(world, hub.relative(d)) && world.getBlockState(hub.relative(d)).getValue(AXIS) != Direction.Axis.Y) {
-                c++;
-            }
-        }
-        return c;
+        return count;
     }
 
     @Override
-    protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
-        builder.add(AXIS, TEXTURE);
-    }
+    protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) { builder.add(AXIS, TEXTURE); }
 }
