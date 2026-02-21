@@ -504,36 +504,41 @@ public class RoadBlock extends Block {
         Direction widthDir = (scanDir.getAxis() == Direction.Axis.X) ? Direction.NORTH : Direction.WEST;
 
         for (int i = 1; i <= 16; i++) {
-            BlockPos check = pos.relative(scanDir, i);
-            BlockState s = world.getBlockState(check);
+            BlockPos checkPos = pos.relative(scanDir, i);
+            BlockState currentState = world.getBlockState(checkPos);
 
-            if (!s.is(this)) {
+            // TERMINATION CHECK: If asphalt ends before hitting a parent road, return 0
+            if (!currentState.is(this)) {
                 return 0;
             }
-            if (s.getValue(AXIS) == Direction.Axis.Y) {
+
+            // PUNCH-THROUGH: Skip other intersection blocks
+            if (currentState.getValue(AXIS) == Direction.Axis.Y) {
                 continue;
             }
 
-            Direction.Axis roadAxis = s.getValue(AXIS);
-            int l = 0;
-            while (l < 8 && isRoadAxis(world, check.relative(widthDir, l + 1), roadAxis)) {
-                l++;
+            // CONNECTION HANDSHAKE
+            Direction.Axis roadAxis = currentState.getValue(AXIS);
+            int leftSide = 0;
+            while (leftSide < 8 && isRoadAxis(world, checkPos.relative(widthDir, leftSide + 1), roadAxis)) {
+                leftSide++;
             }
-            int r = 0;
-            while (r < 8 && isRoadAxis(world, check.relative(widthDir.getOpposite(), r + 1), roadAxis)) {
-                r++;
+            int rightSide = 0;
+            while (rightSide < 8 && isRoadAxis(world, checkPos.relative(widthDir.getOpposite(), rightSide + 1), roadAxis)) {
+                rightSide++;
             }
 
-            int totalW = l + r + 1;
+            int totalWidth = leftSide + rightSide + 1;
 
-            if (totalW % 2 != 0 && l == r) {
-                return 3;
+            if (totalWidth % 2 != 0 && leftSide == rightSide) {
+                return 3; // Odd Center
             }
-            if (totalW % 2 == 0) {
-                if (l == (totalW / 2) - 1) return 1;
-                if (l == totalW / 2) return 2;
+            if (totalWidth % 2 == 0) {
+                if (leftSide == (totalWidth / 2) - 1) return 1; // Even Left
+                if (leftSide == totalWidth / 2) return 2;       // Even Right
             }
-            return -1;
+
+            return -1; // Agnostic Road Found
         }
         return 0;
     }
