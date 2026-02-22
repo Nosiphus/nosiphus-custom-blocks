@@ -63,11 +63,6 @@ public class RoadSlopeBakedModel implements BakedModel {
                     }
                 }
 
-                // Debug Logging
-                if (rand.nextInt(100) == 0) { // Log 1% of calls to avoid spamming the console
-                    System.out.println("[RoadSlope] Texture: " + texture.getSerializedName() + " | Slope: " + slope + " | Flip: " + needsFlip);
-                }
-
                 if (needsFlip) {
                     quads.add(createInvertedTop(paint, 0.0005f));
                 } else {
