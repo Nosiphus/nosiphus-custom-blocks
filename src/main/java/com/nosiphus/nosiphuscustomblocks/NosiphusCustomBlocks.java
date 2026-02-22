@@ -1,10 +1,13 @@
 package com.nosiphus.nosiphuscustomblocks;
 
+import com.nosiphus.nosiphuscustomblocks.client.model.RoadModelLoader;
 import com.nosiphus.nosiphuscustomblocks.world.item.ModCreativeModeTabs;
 import com.nosiphus.nosiphuscustomblocks.world.item.ModItems;
 import com.nosiphus.nosiphuscustomblocks.world.level.block.ModBlocks;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.DyeableLeatherItem;
 import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.client.event.ModelEvent;
 import net.minecraftforge.client.event.RegisterColorHandlersEvent;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.eventbus.api.IEventBus;
@@ -45,6 +48,11 @@ public class NosiphusCustomBlocks {
             event.register(((itemStack, i) ->
                     i > 0 ? -1 : ((DyeableLeatherItem)itemStack.getItem()).getColor(itemStack)),
                     ModItems.FEZ.get(), ModItems.BOW_TIE.get());
+        }
+
+        @SubscribeEvent
+        public static void onRegisterLoaders(ModelEvent.RegisterGeometryLoaders event) {
+            event.register("road_loader", RoadModelLoader.INSTANCE);
         }
 
     }
