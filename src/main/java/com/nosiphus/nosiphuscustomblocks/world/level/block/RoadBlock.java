@@ -36,7 +36,7 @@ public class RoadBlock extends Block {
                 .setValue(TEXTURE, RoadTexture.LANE)
                 .setValue(SLOPE, SlopeState.NONE));
     }
-    
+
     public enum ConnectionType implements StringRepresentable {
         STRAIGHT("straight"),
         DIAGONAL("diagonal"),
@@ -584,6 +584,7 @@ public class RoadBlock extends Block {
 
     /**
      * Logic engine for Axis.X and Axis.Z blocks. Handles lanes, shoulders, and crosswalks.
+     * Patched to correctly identify 1x1 wide straight roads as RoadTexture.SINGLE.
      */
     private BlockState calculateStraightRoad(Level world, BlockPos pos, BlockState state, Direction.Axis axis) {
         Direction widthDir = (axis == Direction.Axis.X) ? Direction.SOUTH : Direction.EAST;
@@ -601,9 +602,43 @@ public class RoadBlock extends Block {
         int totalWidth = leftWidth + rightWidth + 1;
         int laneIndex = leftWidth;
 
-        if (!isRoadAxis(world, pos.relative(widthDir), axis) && !isRoadAxis(world, pos.relative(widthDir.getOpposite()), axis)) {
+        //Handle single-lane straight roads ---
+        if (totalWidth == 1) {
+            // 1. Check for cross-axis road neighbors (indicates an L-turn or T-junction)
+            int crossAxisConnections = 0;
+            for (Direction d : Direction.Plane.HORIZONTAL) {
+                if (d.getAxis() != axis && isRoad(world, pos.relative(d))) {
+                    crossAxisConnections++;
+                }
+            }
+
+            // If there are cross-axis connections, prioritize intersection logic
+            if (crossAxisConnections > 0) {
+                return handleSingleIntersection(world, pos, state);
+            }
+
+            // 2. Check for Hub/Y-Axis connections for Single Crosswalks
+            BlockPos forwardHub = pos.relative(flowDir);
+            BlockPos backwardHub = pos.relative(flowDir.getOpposite());
+            if (isRoadAxis(world, forwardHub, Direction.Axis.Y) || isRoadAxis(world, backwardHub, Direction.Axis.Y)) {
+                BlockPos hubPos = isRoadAxis(world, forwardHub, Direction.Axis.Y) ? forwardHub : backwardHub;
+                if (countHubConnections(world, hubPos, 1) >= 3) {
+                    return state.setValue(TEXTURE, RoadTexture.CROSSWALK_SINGLE);
+                }
+            }
+
+            // 3. If it has neighbors on its own axis and no cross-axis neighbors, it's a SINGLE road
+            boolean hasForward = isRoadAxis(world, pos.relative(flowDir), axis);
+            boolean hasBackward = isRoadAxis(world, pos.relative(flowDir.getOpposite()), axis);
+            if (hasForward || hasBackward) {
+                return state.setValue(TEXTURE, RoadTexture.SINGLE);
+            }
+
+            // 4. Fallback for isolated single blocks (like a 1x1 stub)
             return handleSingleIntersection(world, pos, state);
         }
+        // --- END BUG FIX ---
+
         if (totalWidth == 2) {
             return handleDoubleStraight(world, pos, state, axis, flowDir, laneIndex);
         }
