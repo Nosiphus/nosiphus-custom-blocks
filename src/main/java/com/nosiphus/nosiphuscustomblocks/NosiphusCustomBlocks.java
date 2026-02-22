@@ -6,7 +6,6 @@ import com.nosiphus.nosiphuscustomblocks.world.item.ModItems;
 import com.nosiphus.nosiphuscustomblocks.world.level.block.ModBlocks;
 import net.minecraft.client.renderer.ItemBlockRenderTypes;
 import net.minecraft.client.renderer.RenderType;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.DyeableLeatherItem;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.client.event.ModelEvent;
