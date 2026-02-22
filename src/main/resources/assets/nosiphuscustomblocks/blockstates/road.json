@@ -125,16 +125,6 @@
     { "when": { "slope": "east" },  "apply": { "model": "nosiphuscustomblocks:block/road/slope/asphalt", "y": 90 } },
     { "when": { "slope": "west" },  "apply": { "model": "nosiphuscustomblocks:block/road/slope/asphalt", "y": 270 } },
 
-    { "when": { "texture": "crosswalk", "slope": "north" }, "apply": { "model": "nosiphuscustomblocks:block/road/slope/crosswalk" } },
-    { "when": { "texture": "crosswalk", "slope": "south" }, "apply": { "model": "nosiphuscustomblocks:block/road/slope/crosswalk", "y": 180 } },
-    { "when": { "texture": "crosswalk", "slope": "east" },  "apply": { "model": "nosiphuscustomblocks:block/road/slope/crosswalk", "y": 90 } },
-    { "when": { "texture": "crosswalk", "slope": "west" },  "apply": { "model": "nosiphuscustomblocks:block/road/slope/crosswalk", "y": 270 } },
-
-    { "when": { "texture": "crosswalk_single", "slope": "north" }, "apply": { "model": "nosiphuscustomblocks:block/road/slope/crosswalk_single" } },
-    { "when": { "texture": "crosswalk_single", "slope": "south" }, "apply": { "model": "nosiphuscustomblocks:block/road/slope/crosswalk_single", "y": 180 } },
-    { "when": { "texture": "crosswalk_single", "slope": "east" },  "apply": { "model": "nosiphuscustomblocks:block/road/slope/crosswalk_single", "y": 90 } },
-    { "when": { "texture": "crosswalk_single", "slope": "west" },  "apply": { "model": "nosiphuscustomblocks:block/road/slope/crosswalk_single", "y": 270 } },
-
     { "when": { "texture": "even_divider_left", "slope": "north" }, "apply": { "model": "nosiphuscustomblocks:block/road/slope/even_divider" } },
     { "when": { "texture": "even_divider_left", "slope": "south" }, "apply": { "model": "nosiphuscustomblocks:block/road/slope/even_divider", "y": 180 } },
     { "when": { "texture": "even_divider_left", "slope": "east" },  "apply": { "model": "nosiphuscustomblocks:block/road/slope/even_divider", "y": 90 } },
@@ -154,16 +144,6 @@
     { "when": { "texture": "odd_divider", "slope": "south" }, "apply": { "model": "nosiphuscustomblocks:block/road/slope/odd_divider", "y": 180 } },
     { "when": { "texture": "odd_divider", "slope": "east" },  "apply": { "model": "nosiphuscustomblocks:block/road/slope/odd_divider", "y": 90 } },
     { "when": { "texture": "odd_divider", "slope": "west" },  "apply": { "model": "nosiphuscustomblocks:block/road/slope/odd_divider", "y": 270 } },
-
-    { "when": { "texture": "shoulder_crosswalk_left", "slope": "north" }, "apply": { "model": "nosiphuscustomblocks:block/road/slope/shoulder_crosswalk" } },
-    { "when": { "texture": "shoulder_crosswalk_left", "slope": "south" }, "apply": { "model": "nosiphuscustomblocks:block/road/slope/shoulder_crosswalk", "y": 180 } },
-    { "when": { "texture": "shoulder_crosswalk_left", "slope": "east" },  "apply": { "model": "nosiphuscustomblocks:block/road/slope/shoulder_crosswalk", "y": 90 } },
-    { "when": { "texture": "shoulder_crosswalk_left", "slope": "west" },  "apply": { "model": "nosiphuscustomblocks:block/road/slope/shoulder_crosswalk", "y": 270 } },
-
-    { "when": { "texture": "shoulder_crosswalk_right", "slope": "north" }, "apply": { "model": "nosiphuscustomblocks:block/road/slope/shoulder_crosswalk" } },
-    { "when": { "texture": "shoulder_crosswalk_right", "slope": "south" }, "apply": { "model": "nosiphuscustomblocks:block/road/slope/shoulder_crosswalk", "y": 180 } },
-    { "when": { "texture": "shoulder_crosswalk_right", "slope": "east" },  "apply": { "model": "nosiphuscustomblocks:block/road/slope/shoulder_crosswalk", "y": 90 } },
-    { "when": { "texture": "shoulder_crosswalk_right", "slope": "west" },  "apply": { "model": "nosiphuscustomblocks:block/road/slope/shoulder_crosswalk", "y": 270 } },
 
     { "when": { "texture": "shoulder_divider_left", "slope": "north" }, "apply": { "model": "nosiphuscustomblocks:block/road/slope/shoulder_divider" } },
     { "when": { "texture": "shoulder_divider_left", "slope": "south" }, "apply": { "model": "nosiphuscustomblocks:block/road/slope/shoulder_divider", "y": 180 } },
