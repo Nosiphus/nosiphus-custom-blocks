@@ -15,6 +15,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.EnumProperty;
+import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import org.jetbrains.annotations.Nullable;
@@ -34,6 +35,16 @@ public class RoadBlock extends Block {
                 .setValue(AXIS, Direction.Axis.X)
                 .setValue(TEXTURE, RoadTexture.LANE)
                 .setValue(SLOPE, SlopeState.NONE));
+    }
+    
+    public enum ConnectionType implements StringRepresentable {
+        STRAIGHT("straight"),
+        DIAGONAL("diagonal"),
+        TRANSITION("transition"); // For those meeting points you mentioned
+
+        private final String name;
+        ConnectionType(String name) { this.name = name; }
+        @Override public String getSerializedName() { return this.name; }
     }
 
     public enum SlopeState implements StringRepresentable {
@@ -151,6 +162,40 @@ public class RoadBlock extends Block {
                 level.setBlock(target, this.calculateState(level, target, targetState), 2);
             }
         }
+    }
+
+    @Override
+    public VoxelShape getShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context) {
+        SlopeState slope = state.getValue(SLOPE);
+        if (slope == SlopeState.NONE) return Shapes.block();
+
+        return switch (slope) {
+            case NORTH -> Shapes.or(
+                    Block.box(0, 0, 12, 16, 4, 16),  // Step 1: Lowest (South)
+                    Block.box(0, 4, 8, 16, 8, 12),   // Step 2
+                    Block.box(0, 8, 4, 16, 12, 8),   // Step 3
+                    Block.box(0, 12, 0, 16, 16, 4)   // Step 4: Highest (North)
+            );
+            case SOUTH -> Shapes.or(
+                    Block.box(0, 0, 0, 16, 4, 4),    // Step 1: Lowest (North)
+                    Block.box(0, 4, 4, 16, 8, 8),    // Step 2
+                    Block.box(0, 8, 8, 16, 12, 12),  // Step 3
+                    Block.box(0, 12, 12, 16, 16, 16) // Step 4: Highest (South)
+            );
+            case EAST -> Shapes.or(
+                    Block.box(0, 0, 0, 4, 4, 16),    // Step 1: Lowest (West)
+                    Block.box(4, 4, 0, 8, 8, 16),    // Step 2
+                    Block.box(8, 8, 0, 12, 12, 16),  // Step 3
+                    Block.box(12, 12, 0, 16, 16, 16) // Step 4: Highest (East)
+            );
+            case WEST -> Shapes.or(
+                    Block.box(12, 0, 0, 16, 4, 16),  // Step 1: Lowest (East)
+                    Block.box(8, 4, 0, 12, 8, 16),   // Step 2
+                    Block.box(4, 8, 0, 8, 12, 16),   // Step 3
+                    Block.box(0, 12, 0, 4, 16, 16)   // Step 4: Highest (West)
+            );
+            default -> Shapes.block();
+        };
     }
 
     @Override
