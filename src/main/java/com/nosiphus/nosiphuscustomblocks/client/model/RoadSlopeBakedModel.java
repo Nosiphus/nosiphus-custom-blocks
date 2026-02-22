@@ -28,42 +28,30 @@ public class RoadSlopeBakedModel implements BakedModel {
     public List<BakedQuad> getQuads(@Nullable BlockState state, @Nullable Direction side, RandomSource rand) {
         List<BakedQuad> quads = new ArrayList<>();
 
-        // 1. The Sloped Top: Stays on null pass to avoid being culled by the engine.
-        if (side == null) {
-            quads.add(createTop());
-            return quads;
-        }
-
-        // 2. The Side Triangles: Must be on specific world-side passes to prevent Z-fighting.
-        if (side.getAxis().isHorizontal()) {
+        if (side != null && side.getAxis().isHorizontal()) {
             Direction worldWest = transformation.rotateTransform(Direction.WEST);
             Direction worldEast = transformation.rotateTransform(Direction.EAST);
 
-            if (side == worldWest) {
-                quads.add(createTriangle(0f, side));
-            } else if (side == worldEast) {
-                quads.add(createTriangle(1f, side));
-            }
+            if (side == worldWest) quads.add(createTriangle(0f, side));
+            if (side == worldEast) quads.add(createTriangle(1f, side));
+        } else if (side == null) {
+            quads.add(createTop());
         }
 
         return quads;
     }
 
     private BakedQuad createTop() {
-        // Based on your current "North (Z=0) is High" logic.
+        // High point: North (0,1,0), Low point: South (0,0,1).
         Vector3f nwHigh = new Vector3f(0, 1, 0);
         Vector3f neHigh = new Vector3f(1, 1, 0);
         Vector3f seLow = new Vector3f(1, 0, 1);
         Vector3f swLow = new Vector3f(0, 0, 1);
 
-        // Apply world-space transformation.
         return BakedQuadHelper.create(
-                transform(swLow),
-                transform(seLow),
-                transform(neHigh),
-                transform(nwHigh),
-                asphalt,
-                Direction.UP
+                transform(swLow), transform(seLow), transform(neHigh), transform(nwHigh), // World Geometry
+                swLow, seLow, neHigh, nwHigh, // Local UVs
+                asphalt, Direction.UP
         );
     }
 
@@ -76,10 +64,11 @@ public class RoadSlopeBakedModel implements BakedModel {
         Vector3f v2 = transform(bSouth);
         Vector3f v3 = transform(tNorth);
 
+        // Map local UVs for sides to ensure they rotate with the block.
         if (x == 0f) {
-            return BakedQuadHelper.create(v1, v2, v3, v3, asphalt, worldDir);
+            return BakedQuadHelper.create(v1, v2, v3, v3, bNorth, bSouth, tNorth, tNorth, asphalt, worldDir);
         } else {
-            return BakedQuadHelper.create(v2, v1, v3, v3, asphalt, worldDir);
+            return BakedQuadHelper.create(v2, v1, v3, v3, bSouth, bNorth, tNorth, tNorth, asphalt, worldDir);
         }
     }
 

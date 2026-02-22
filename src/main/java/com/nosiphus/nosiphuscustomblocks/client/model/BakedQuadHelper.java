@@ -6,48 +6,41 @@ import net.minecraft.core.Direction;
 import org.joml.Vector3f;
 
 public class BakedQuadHelper {
-    public static BakedQuad create(Vector3f v1, Vector3f v2, Vector3f v3, Vector3f v4, TextureAtlasSprite sprite, Direction direction) {
+    public static BakedQuad create(Vector3f v1, Vector3f v2, Vector3f v3, Vector3f v4,
+                                   Vector3f l1, Vector3f l2, Vector3f l3, Vector3f l4,
+                                   TextureAtlasSprite sprite, Direction direction) {
         int[] vertices = new int[32];
 
-        fillVertex(vertices, 0, v1, sprite, direction);
-        fillVertex(vertices, 1, v2, sprite, direction);
-        fillVertex(vertices, 2, v3, sprite, direction);
-        fillVertex(vertices, 3, v4, sprite, direction);
+        fillVertex(vertices, 0, v1, l1, sprite, direction);
+        fillVertex(vertices, 1, v2, l2, sprite, direction);
+        fillVertex(vertices, 2, v3, l3, sprite, direction);
+        fillVertex(vertices, 3, v4, l4, sprite, direction);
 
         return new BakedQuad(vertices, 0, direction, sprite, true);
     }
 
-    private static void fillVertex(int[] vertices, int index, Vector3f pos, TextureAtlasSprite sprite, Direction dir) {
+    private static void fillVertex(int[] vertices, int index, Vector3f pos, Vector3f local, TextureAtlasSprite sprite, Direction dir) {
         int offset = index * 8;
         vertices[offset] = Float.floatToRawIntBits(pos.x());
         vertices[offset + 1] = Float.floatToRawIntBits(pos.y());
         vertices[offset + 2] = Float.floatToRawIntBits(pos.z());
         vertices[offset + 3] = -1; // Color
 
-        // UV AXIS SELECTION:
-        // If the triangle faces NORTH or SOUTH, its width is on the X axis.
-        // If it faces EAST or WEST, its width is on the Z axis.
-        float u = (dir.getAxis() == Direction.Axis.Z) ? pos.x() : pos.z();
-        float v = 1 - pos.y(); // Height is always Y.
-
-        // Standardize flow: flip for North and East.
-        if (dir == Direction.NORTH || dir == Direction.EAST) {
-            u = 1 - u;
+        float u, v;
+        if (dir == Direction.UP) { // Sloped Top
+            // U = Width (Local X), V = Depth (Local Z).
+            u = local.x() * 16;
+            v = local.z() * 16;
+        } else { // Sides
+            u = local.z() * 16;
+            v = (1 - local.y()) * 16;
         }
 
-        vertices[offset + 4] = Float.floatToRawIntBits(sprite.getU(u * 16));
-        vertices[offset + 5] = Float.floatToRawIntBits(sprite.getV(v * 16));
+        vertices[offset + 4] = Float.floatToRawIntBits(sprite.getU(u));
+        vertices[offset + 5] = Float.floatToRawIntBits(sprite.getV(v));
 
-        // Ensure lighting normals are applied.
+        // Populate normal for correct lighting
         vertices[offset + 6] = 0;
-        vertices[offset + 7] = calculateNormal(dir);
-    }
-
-    private static int calculateNormal(Direction dir) {
-        // Packs the direction into the format Minecraft expects (0x00ZZYYXX).
-        int x = dir.getStepX() & 0xFF;
-        int y = dir.getStepY() & 0xFF;
-        int z = dir.getStepZ() & 0xFF;
-        return x | (y << 8) | (z << 16);
+        vertices[offset + 7] = (dir.getStepX() & 0xFF) | ((dir.getStepY() & 0xFF) << 8) | ((dir.getStepZ() & 0xFF) << 16);
     }
 }
