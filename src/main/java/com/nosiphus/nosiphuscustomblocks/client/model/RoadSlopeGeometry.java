@@ -21,14 +21,17 @@ public class RoadSlopeGeometry implements IUnbakedGeometry<RoadSlopeGeometry> {
     }
 
     @Override
-    public BakedModel bake(IGeometryBakingContext context, ModelBaker baker,
-                           Function<Material, TextureAtlasSprite> spriteGetter,
-                           ModelState modelState, ItemOverrides overrides, ResourceLocation modelLocation) {
+    public BakedModel bake(IGeometryBakingContext context, ModelBaker baker, Function<Material, TextureAtlasSprite> spriteGetter, ModelState modelState, ItemOverrides overrides, ResourceLocation modelLocation) {
+        // Attempt to get asphalt, fallback to particle, then fallback to missing texture.
+        TextureAtlasSprite asphalt = spriteGetter.apply(context.hasMaterial("asphalt") ?
+                context.getMaterial("asphalt") : context.getMaterial("particle"));
 
-        TextureAtlasSprite asphalt = spriteGetter.apply(new Material(InventoryMenu.BLOCK_ATLAS,
-                new ResourceLocation("minecraft:block/gray_concrete")));
+        TextureAtlasSprite paint = null;
+        if (context.hasMaterial("paint")) {
+            paint = spriteGetter.apply(context.getMaterial("paint"));
+        }
 
-        // Pass modelState to handle the Y-rotation from the blockstate.
-        return new RoadSlopeBakedModel(asphalt, modelState);
+        // Pass modelState instead of just transformation to keep rotation data clean.
+        return new RoadSlopeBakedModel(asphalt, paint, modelState);
     }
 }

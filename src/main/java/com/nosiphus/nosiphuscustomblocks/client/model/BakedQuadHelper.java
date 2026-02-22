@@ -16,6 +16,7 @@ public class BakedQuadHelper {
         fillVertex(vertices, 2, v3, l3, sprite, direction);
         fillVertex(vertices, 3, v4, l4, sprite, direction);
 
+        // The 'true' at the end tells the engine to respect the sprite's shading.
         return new BakedQuad(vertices, 0, direction, sprite, true);
     }
 
@@ -26,6 +27,7 @@ public class BakedQuadHelper {
         vertices[offset + 2] = Float.floatToRawIntBits(pos.z());
         vertices[offset + 3] = -1; // Color
 
+        // Local-based UVs prevent stretching and misalignment.
         float u, v;
         if (dir == Direction.UP) { // Sloped Top
             // U = Width (Local X), V = Depth (Local Z).
@@ -39,8 +41,7 @@ public class BakedQuadHelper {
         vertices[offset + 4] = Float.floatToRawIntBits(sprite.getU(u));
         vertices[offset + 5] = Float.floatToRawIntBits(sprite.getV(v));
 
-        // Populate normal for correct lighting
-        vertices[offset + 6] = 0;
+        vertices[offset + 6] = 0; // Lightmap
         vertices[offset + 7] = (dir.getStepX() & 0xFF) | ((dir.getStepY() & 0xFF) << 8) | ((dir.getStepZ() & 0xFF) << 16);
     }
 }

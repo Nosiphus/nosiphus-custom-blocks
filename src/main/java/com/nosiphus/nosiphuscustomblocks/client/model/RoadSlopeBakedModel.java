@@ -17,10 +17,12 @@ import java.util.List;
 
 public class RoadSlopeBakedModel implements BakedModel {
     private final TextureAtlasSprite asphalt;
+    private final TextureAtlasSprite paint;
     private final Transformation transformation;
 
-    public RoadSlopeBakedModel(TextureAtlasSprite asphalt, ModelState state) {
+    public RoadSlopeBakedModel(TextureAtlasSprite asphalt, @Nullable TextureAtlasSprite paint, ModelState state) {
         this.asphalt = asphalt;
+        this.paint = paint;
         this.transformation = state.getRotation();
     }
 
@@ -29,29 +31,38 @@ public class RoadSlopeBakedModel implements BakedModel {
         List<BakedQuad> quads = new ArrayList<>();
 
         if (side != null && side.getAxis().isHorizontal()) {
+            // Side triangles remain asphalt-only.
             Direction worldWest = transformation.rotateTransform(Direction.WEST);
             Direction worldEast = transformation.rotateTransform(Direction.EAST);
 
             if (side == worldWest) quads.add(createTriangle(0f, side));
             if (side == worldEast) quads.add(createTriangle(1f, side));
         } else if (side == null) {
-            quads.add(createTop());
+            // Layer 1: Base Asphalt
+            quads.add(createTop(asphalt, 0.0f));
+
+            // Layer 2: Paint Overlay (only if the sprite is present)
+            if (paint != null) {
+                // We use a tiny offset (0.0005) to prevent Z-fighting while keeping it tight.
+                quads.add(createTop(paint, 0.0005f));
+            }
         }
 
         return quads;
     }
 
-    private BakedQuad createTop() {
-        // High point: North (0,1,0), Low point: South (0,0,1).
-        Vector3f nwHigh = new Vector3f(0, 1, 0);
-        Vector3f neHigh = new Vector3f(1, 1, 0);
-        Vector3f seLow = new Vector3f(1, 0, 1);
-        Vector3f swLow = new Vector3f(0, 0, 1);
+    private BakedQuad createTop(TextureAtlasSprite sprite, float offset) {
+        // High North (z=0), Low South (z=1)
+        // Offset is applied to Y to lift the paint, and Z/X to keep it centered.
+        Vector3f nwHigh = new Vector3f(0, 1 + offset, 0);
+        Vector3f neHigh = new Vector3f(1, 1 + offset, 0);
+        Vector3f seLow = new Vector3f(1, 0 + offset, 1);
+        Vector3f swLow = new Vector3f(0, 0 + offset, 1);
 
         return BakedQuadHelper.create(
-                transform(swLow), transform(seLow), transform(neHigh), transform(nwHigh), // World Geometry
-                swLow, seLow, neHigh, nwHigh, // Local UVs
-                asphalt, Direction.UP
+                transform(swLow), transform(seLow), transform(neHigh), transform(nwHigh),
+                swLow, seLow, neHigh, nwHigh,
+                sprite, Direction.UP
         );
     }
 

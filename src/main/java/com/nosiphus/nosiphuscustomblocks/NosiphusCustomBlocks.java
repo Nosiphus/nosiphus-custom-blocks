@@ -4,6 +4,8 @@ import com.nosiphus.nosiphuscustomblocks.client.model.RoadModelLoader;
 import com.nosiphus.nosiphuscustomblocks.world.item.ModCreativeModeTabs;
 import com.nosiphus.nosiphuscustomblocks.world.item.ModItems;
 import com.nosiphus.nosiphuscustomblocks.world.level.block.ModBlocks;
+import net.minecraft.client.renderer.ItemBlockRenderTypes;
+import net.minecraft.client.renderer.RenderType;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.DyeableLeatherItem;
 import net.minecraftforge.api.distmarker.Dist;
@@ -40,7 +42,7 @@ public class NosiphusCustomBlocks {
 
         @SubscribeEvent
         public static void onClientSetup(FMLClientSetupEvent event) {
-
+            ItemBlockRenderTypes.setRenderLayer(ModBlocks.ROAD.get(), RenderType.cutout());
         }
 
         @SubscribeEvent
