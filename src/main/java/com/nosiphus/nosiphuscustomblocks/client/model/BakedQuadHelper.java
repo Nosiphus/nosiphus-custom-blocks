@@ -22,17 +22,32 @@ public class BakedQuadHelper {
         vertices[offset] = Float.floatToRawIntBits(pos.x());
         vertices[offset + 1] = Float.floatToRawIntBits(pos.y());
         vertices[offset + 2] = Float.floatToRawIntBits(pos.z());
-        vertices[offset + 3] = -1;
+        vertices[offset + 3] = -1; // Color
 
-        // UV Projection Logic
+        // UV AXIS SELECTION:
+        // If the triangle faces NORTH or SOUTH, its width is on the X axis.
+        // If it faces EAST or WEST, its width is on the Z axis.
         float u = (dir.getAxis() == Direction.Axis.Z) ? pos.x() : pos.z();
-        float v = 1 - pos.y();
+        float v = 1 - pos.y(); // Height is always Y.
 
-        if (dir == Direction.NORTH || dir == Direction.EAST) u = 1 - u;
+        // Standardize flow: flip for North and East.
+        if (dir == Direction.NORTH || dir == Direction.EAST) {
+            u = 1 - u;
+        }
 
         vertices[offset + 4] = Float.floatToRawIntBits(sprite.getU(u * 16));
         vertices[offset + 5] = Float.floatToRawIntBits(sprite.getV(v * 16));
+
+        // Ensure lighting normals are applied.
         vertices[offset + 6] = 0;
-        vertices[offset + 7] = 0;
+        vertices[offset + 7] = calculateNormal(dir);
+    }
+
+    private static int calculateNormal(Direction dir) {
+        // Packs the direction into the format Minecraft expects (0x00ZZYYXX).
+        int x = dir.getStepX() & 0xFF;
+        int y = dir.getStepY() & 0xFF;
+        int z = dir.getStepZ() & 0xFF;
+        return x | (y << 8) | (z << 16);
     }
 }

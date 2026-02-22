@@ -28,34 +28,54 @@ public class RoadSlopeBakedModel implements BakedModel {
     public List<BakedQuad> getQuads(@Nullable BlockState state, @Nullable Direction side, RandomSource rand) {
         List<BakedQuad> quads = new ArrayList<>();
 
-        // Ensure we only render triangles when requested for a horizontal side.
-        if (side == null || !side.getAxis().isHorizontal()) return quads;
+        // 1. The Sloped Top: Stays on null pass to avoid being culled by the engine.
+        if (side == null) {
+            quads.add(createTop());
+            return quads;
+        }
 
-        // Calculate which world-side the model's West and East faces currently occupy.
-        Direction worldWest = transformation.rotateTransform(Direction.WEST);
-        Direction worldEast = transformation.rotateTransform(Direction.EAST);
+        // 2. The Side Triangles: Must be on specific world-side passes to prevent Z-fighting.
+        if (side.getAxis().isHorizontal()) {
+            Direction worldWest = transformation.rotateTransform(Direction.WEST);
+            Direction worldEast = transformation.rotateTransform(Direction.EAST);
 
-        if (side == worldWest) {
-            quads.add(createTriangle(0f, side)); // Local West
-        } else if (side == worldEast) {
-            quads.add(createTriangle(1f, side)); // Local East
+            if (side == worldWest) {
+                quads.add(createTriangle(0f, side));
+            } else if (side == worldEast) {
+                quads.add(createTriangle(1f, side));
+            }
         }
 
         return quads;
     }
 
+    private BakedQuad createTop() {
+        // Based on your current "North (Z=0) is High" logic.
+        Vector3f nwHigh = new Vector3f(0, 1, 0);
+        Vector3f neHigh = new Vector3f(1, 1, 0);
+        Vector3f seLow = new Vector3f(1, 0, 1);
+        Vector3f swLow = new Vector3f(0, 0, 1);
+
+        // Apply world-space transformation.
+        return BakedQuadHelper.create(
+                transform(swLow),
+                transform(seLow),
+                transform(neHigh),
+                transform(nwHigh),
+                asphalt,
+                Direction.UP
+        );
+    }
+
     private BakedQuad createTriangle(float x, Direction worldDir) {
-        // Base Geometry: North (z=0) is High, South (z=1) is Low.
         Vector3f bNorth = new Vector3f(x, 0, 0);
         Vector3f bSouth = new Vector3f(x, 0, 1);
         Vector3f tNorth = new Vector3f(x, 1, 0);
 
-        // Apply world-space transformation.
         Vector3f v1 = transform(bNorth);
         Vector3f v2 = transform(bSouth);
         Vector3f v3 = transform(tNorth);
 
-        // Restored Winding Order: West (x=0) is bNorth -> bSouth -> tNorth.
         if (x == 0f) {
             return BakedQuadHelper.create(v1, v2, v3, v3, asphalt, worldDir);
         } else {
