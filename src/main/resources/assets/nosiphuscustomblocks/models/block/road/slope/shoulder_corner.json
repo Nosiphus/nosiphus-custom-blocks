@@ -1,7 +1,0 @@
-{
-  "loader": "nosiphuscustomblocks:road_loader",
-  "textures": {
-		"paint": "nosiphuscustomblocks:block/road/shoulder_corner",
-		"particle": "minecraft:block/gray_concrete"
-  }
-}

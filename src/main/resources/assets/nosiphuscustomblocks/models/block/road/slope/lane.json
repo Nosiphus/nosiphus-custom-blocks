@@ -1,5 +1,6 @@
 {
   "loader": "nosiphuscustomblocks:road_loader",
+  "render_type": "minecraft:cutout",
   "textures": {
     "paint": "nosiphuscustomblocks:block/road/lane",
     "particle": "minecraft:block/gray_concrete"
