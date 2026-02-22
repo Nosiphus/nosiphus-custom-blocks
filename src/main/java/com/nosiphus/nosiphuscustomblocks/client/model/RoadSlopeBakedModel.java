@@ -28,35 +28,34 @@ public class RoadSlopeBakedModel implements BakedModel {
     public List<BakedQuad> getQuads(@Nullable BlockState state, @Nullable Direction side, RandomSource rand) {
         List<BakedQuad> quads = new ArrayList<>();
 
-        // CULLING RESET: Only render side walls on the specific world-side pass.
+        // Ensure we only render triangles when requested for a horizontal side.
         if (side == null || !side.getAxis().isHorizontal()) return quads;
 
-        // Step 1: Find what direction the MODEL'S West face is now pointing in the WORLD.
+        // Calculate which world-side the model's West and East faces currently occupy.
         Direction worldWest = transformation.rotateTransform(Direction.WEST);
         Direction worldEast = transformation.rotateTransform(Direction.EAST);
 
-        // Step 2: Only draw the triangle if the engine is asking for the world-side it now occupies.
         if (side == worldWest) {
-            quads.add(createTriangle(0f, side));
+            quads.add(createTriangle(0f, side)); // Local West
         } else if (side == worldEast) {
-            quads.add(createTriangle(1f, side));
+            quads.add(createTriangle(1f, side)); // Local East
         }
 
         return quads;
     }
 
     private BakedQuad createTriangle(float x, Direction worldDir) {
-        // High point: South (z=1, y=1), Low point: North (z=0, y=0)
+        // Base Geometry: North (z=0) is High, South (z=1) is Low.
         Vector3f bNorth = new Vector3f(x, 0, 0);
         Vector3f bSouth = new Vector3f(x, 0, 1);
-        Vector3f tSouth = new Vector3f(x, 1, 1);
+        Vector3f tNorth = new Vector3f(x, 1, 0);
 
-        // Transform vertices to final world positions.
+        // Apply world-space transformation.
         Vector3f v1 = transform(bNorth);
         Vector3f v2 = transform(bSouth);
-        Vector3f v3 = transform(tSouth);
+        Vector3f v3 = transform(tNorth);
 
-        // Explicit winding: West (x=0) is bNorth -> bSouth -> tSouth.
+        // Restored Winding Order: West (x=0) is bNorth -> bSouth -> tNorth.
         if (x == 0f) {
             return BakedQuadHelper.create(v1, v2, v3, v3, asphalt, worldDir);
         } else {

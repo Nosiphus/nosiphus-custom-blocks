@@ -22,13 +22,12 @@ public class BakedQuadHelper {
         vertices[offset] = Float.floatToRawIntBits(pos.x());
         vertices[offset + 1] = Float.floatToRawIntBits(pos.y());
         vertices[offset + 2] = Float.floatToRawIntBits(pos.z());
-        vertices[offset + 3] = -1; // Color
+        vertices[offset + 3] = -1;
 
-        // Horizontal UV projection: North/South faces use X, East/West use Z.
+        // UV Projection Logic
         float u = (dir.getAxis() == Direction.Axis.Z) ? pos.x() : pos.z();
         float v = 1 - pos.y();
 
-        // Standardization for Sphax orientation.
         if (dir == Direction.NORTH || dir == Direction.EAST) u = 1 - u;
 
         vertices[offset + 4] = Float.floatToRawIntBits(sprite.getU(u * 16));
