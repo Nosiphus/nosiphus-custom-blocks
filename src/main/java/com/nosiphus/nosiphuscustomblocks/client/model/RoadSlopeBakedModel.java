@@ -1,6 +1,7 @@
 package com.nosiphus.nosiphuscustomblocks.client.model;
 
 import com.mojang.math.Transformation;
+import com.nosiphus.nosiphuscustomblocks.world.level.block.RoadBlock;
 import net.minecraft.client.renderer.block.model.BakedQuad;
 import net.minecraft.client.renderer.block.model.ItemOverrides;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
@@ -31,23 +32,49 @@ public class RoadSlopeBakedModel implements BakedModel {
         List<BakedQuad> quads = new ArrayList<>();
 
         if (side != null && side.getAxis().isHorizontal()) {
-            // Side triangles remain asphalt-only.
             Direction worldWest = transformation.rotateTransform(Direction.WEST);
             Direction worldEast = transformation.rotateTransform(Direction.EAST);
-
             if (side == worldWest) quads.add(createTriangle(0f, side));
             if (side == worldEast) quads.add(createTriangle(1f, side));
         } else if (side == null) {
-            // Layer 1: Base Asphalt
             quads.add(createTop(asphalt, 0.0f));
 
-            // Layer 2: Paint Overlay (only if the sprite is present)
-            if (paint != null) {
-                // We use a tiny offset (0.0005) to prevent Z-fighting while keeping it tight.
-                quads.add(createTop(paint, 0.0005f));
+            if (paint != null && state != null) {
+                // theory #2: Direct Enum Detection
+                RoadBlock.RoadTexture texture = state.getValue(RoadBlock.TEXTURE);
+                RoadBlock.SlopeState slope = state.getValue(RoadBlock.SLOPE);
+
+                boolean needsFlip = false;
+
+                // Explicit Check logic based on your provided list
+                if (slope == RoadBlock.SlopeState.NORTH ||
+                        slope == RoadBlock.SlopeState.EAST) {
+                    if (texture == RoadBlock.RoadTexture.SHOULDER_RIGHT ||
+                            texture == RoadBlock.RoadTexture.EVEN_DIVIDER_RIGHT ||
+                            texture == RoadBlock.RoadTexture.SHOULDER_DIVIDER_RIGHT) {
+                        needsFlip = true;
+                    }
+                } else if (slope == RoadBlock.SlopeState.SOUTH ||
+                        slope == RoadBlock.SlopeState.WEST) {
+                    if (texture == RoadBlock.RoadTexture.SHOULDER_LEFT ||
+                            texture == RoadBlock.RoadTexture.EVEN_DIVIDER_LEFT ||
+                            texture == RoadBlock.RoadTexture.SHOULDER_DIVIDER_LEFT) {
+                        needsFlip = true;
+                    }
+                }
+
+                // Debug Logging
+                if (rand.nextInt(100) == 0) { // Log 1% of calls to avoid spamming the console
+                    System.out.println("[RoadSlope] Texture: " + texture.getSerializedName() + " | Slope: " + slope + " | Flip: " + needsFlip);
+                }
+
+                if (needsFlip) {
+                    quads.add(createInvertedTop(paint, 0.0005f));
+                } else {
+                    quads.add(createTop(paint, 0.0005f));
+                }
             }
         }
-
         return quads;
     }
 
@@ -62,6 +89,23 @@ public class RoadSlopeBakedModel implements BakedModel {
         return BakedQuadHelper.create(
                 transform(swLow), transform(seLow), transform(neHigh), transform(nwHigh),
                 swLow, seLow, neHigh, nwHigh,
+                sprite, Direction.UP
+        );
+    }
+
+    private BakedQuad createInvertedTop(TextureAtlasSprite sprite, float offset) {
+        Vector3f nwH = new Vector3f(0, 1 + offset, 0);
+        Vector3f neH = new Vector3f(1, 1 + offset, 0);
+        Vector3f seL = new Vector3f(1, 0 + offset, 1);
+        Vector3f swL = new Vector3f(0, 0 + offset, 1);
+
+        // Explicitly map the U/V corners
+        // Standard: (0,0) -> (1,0) -> (1,1) -> (0,1)
+        // Inverted: (1,1) -> (0,1) -> (0,0) -> (1,0)
+        return BakedQuadHelper.create(
+                transform(swL), transform(seL), transform(neH), transform(nwH), // Geometry
+                new Vector3f(1, 0, 1), new Vector3f(0, 0, 1),
+                new Vector3f(0, 0, 0), new Vector3f(1, 0, 0), // Explicit 180-degree flip
                 sprite, Direction.UP
         );
     }
