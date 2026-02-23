@@ -74,11 +74,6 @@
     
     { "when": { "texture": "odd_divider_y_northsouth", "slope": "none" }, "apply": { "model": "nosiphuscustomblocks:block/road/odd_divider" } },
     { "when": { "texture": "odd_divider_y_eastwest", "slope": "none" }, "apply": { "model": "nosiphuscustomblocks:block/road/odd_divider", "y": 90 } },
-    
-    { "when": { "texture": "shoulder_corner_northwest", "slope": "none" }, "apply": { "model": "nosiphuscustomblocks:block/road/shoulder_corner", "y": 180 } },
-    { "when": { "texture": "shoulder_corner_northeast", "slope": "none" }, "apply": { "model": "nosiphuscustomblocks:block/road/shoulder_corner", "y": 270 } },
-    { "when": { "texture": "shoulder_corner_southeast", "slope": "none" }, "apply": { "model": "nosiphuscustomblocks:block/road/shoulder_corner" } },
-    { "when": { "texture": "shoulder_corner_southwest", "slope": "none" }, "apply": { "model": "nosiphuscustomblocks:block/road/shoulder_corner", "y": 90 } },
 
     { "when": { "texture": "shoulder_crosswalk_left", "axis": "z", "slope": "none" }, "apply": { "model": "nosiphuscustomblocks:block/road/shoulder_crosswalk" } },
     { "when": { "texture": "shoulder_crosswalk_left", "axis": "x", "slope": "none" }, "apply": { "model": "nosiphuscustomblocks:block/road/shoulder_crosswalk", "y": 90 } },
@@ -94,6 +89,11 @@
     { "when": { "texture": "shoulder_edge_east", "slope": "none" }, "apply": { "model": "nosiphuscustomblocks:block/road/shoulder" } },
     { "when": { "texture": "shoulder_edge_south", "slope": "none" }, "apply": { "model": "nosiphuscustomblocks:block/road/shoulder", "y": 90 } },
     { "when": { "texture": "shoulder_edge_west", "slope": "none" }, "apply": { "model": "nosiphuscustomblocks:block/road/shoulder", "y": 180 } },
+	
+	{ "when": { "texture": "shoulder_inside_corner_northwest", "slope": "none" }, "apply": { "model": "nosiphuscustomblocks:block/road/shoulder_inside_corner" } },
+    { "when": { "texture": "shoulder_inside_corner_northeast", "slope": "none" }, "apply": { "model": "nosiphuscustomblocks:block/road/shoulder_inside_corner", "y": 90 } },
+    { "when": { "texture": "shoulder_inside_corner_southeast", "slope": "none" }, "apply": { "model": "nosiphuscustomblocks:block/road/shoulder_inside_corner", "y": 180 } },
+    { "when": { "texture": "shoulder_inside_corner_southwest", "slope": "none" }, "apply": { "model": "nosiphuscustomblocks:block/road/shoulder_inside_corner", "y": 270 } },
 
     { "when": { "texture": "shoulder_left", "axis": "z", "slope": "none" }, "apply": { "model": "nosiphuscustomblocks:block/road/shoulder" } },
     { "when": { "texture": "shoulder_left", "axis": "x", "slope": "none" }, "apply": { "model": "nosiphuscustomblocks:block/road/shoulder", "y": 90 } },
