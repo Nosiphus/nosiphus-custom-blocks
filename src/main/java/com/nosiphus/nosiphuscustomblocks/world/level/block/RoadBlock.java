@@ -169,33 +169,17 @@ public class RoadBlock extends Block {
         SlopeState slope = state.getValue(SLOPE);
         if (slope == SlopeState.NONE) return Shapes.block();
 
-        return switch (slope) {
-            case NORTH -> Shapes.or(
-                    Block.box(0, 0, 12, 16, 4, 16),  // Step 1: Lowest (South)
-                    Block.box(0, 4, 8, 16, 8, 12),   // Step 2
-                    Block.box(0, 8, 4, 16, 12, 8),   // Step 3
-                    Block.box(0, 12, 0, 16, 16, 4)   // Step 4: Highest (North)
-            );
-            case SOUTH -> Shapes.or(
-                    Block.box(0, 0, 0, 16, 4, 4),    // Step 1: Lowest (North)
-                    Block.box(0, 4, 4, 16, 8, 8),    // Step 2
-                    Block.box(0, 8, 8, 16, 12, 12),  // Step 3
-                    Block.box(0, 12, 12, 16, 16, 16) // Step 4: Highest (South)
-            );
-            case EAST -> Shapes.or(
-                    Block.box(0, 0, 0, 4, 4, 16),    // Step 1: Lowest (West)
-                    Block.box(4, 4, 0, 8, 8, 16),    // Step 2
-                    Block.box(8, 8, 0, 12, 12, 16),  // Step 3
-                    Block.box(12, 12, 0, 16, 16, 16) // Step 4: Highest (East)
-            );
-            case WEST -> Shapes.or(
-                    Block.box(12, 0, 0, 16, 4, 16),  // Step 1: Lowest (East)
-                    Block.box(8, 4, 0, 12, 8, 16),   // Step 2
-                    Block.box(4, 8, 0, 8, 12, 16),   // Step 3
-                    Block.box(0, 12, 0, 4, 16, 16)   // Step 4: Highest (West)
-            );
-            default -> Shapes.block();
-        };
+        VoxelShape shape = Shapes.empty();
+        for (int i = 0; i < 16; i++) {
+            shape = switch (slope) {
+                case NORTH -> Shapes.or(shape, Block.box(0, 0, 15 - i, 16, i + 1, 16 - i));
+                case SOUTH -> Shapes.or(shape, Block.box(0, 0, i, 16, i + 1, i + 1));
+                case EAST -> Shapes.or(shape, Block.box(i, 0, 0, i + 1, i + 1, 16));
+                case WEST -> Shapes.or(shape, Block.box(15 - i, 0, 0, 16 - i, i + 1, 16));
+                default -> shape;
+            };
+        }
+        return shape;
     }
 
     @Override
