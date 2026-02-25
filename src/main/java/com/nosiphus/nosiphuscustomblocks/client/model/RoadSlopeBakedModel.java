@@ -13,6 +13,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Vector3f;
 import org.joml.Vector4f;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -129,6 +130,7 @@ public class RoadSlopeBakedModel implements BakedModel {
     }
 
     @Override public TextureAtlasSprite getParticleIcon() { return asphalt; }
+
     @Override public boolean useAmbientOcclusion() { return true; }
     @Override public boolean isGui3d() { return true; }
     @Override public boolean usesBlockLight() { return true; }
