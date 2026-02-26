@@ -289,122 +289,21 @@ public class RoadBlock extends Block {
 
     private BlockState getRoadTexture(BlockState state, JunctionShape junctionShape, String quadrant, ShoulderCorner corner, ShoulderEdge edge, boolean crosswalk, boolean northRoad, boolean southRoad, boolean westRoad, boolean eastRoad, int leftWidth, int rightWidth, int totalWidth) {
         Direction.Axis axis = state.getValue(AXIS);
-        RoadTexture texture = RoadTexture.LANE;
+        RoadTexture texture;
 
         if(axis.isVertical()) {
-            if(junctionShape != JunctionShape.NONE) {
-                if (junctionShape.name().startsWith("T_")) {
-                    String tPrefix = "SHOULDER_SINGLE_";
-                    texture = RoadTexture.valueOf(tPrefix + junctionShape.name());
-                } else if (junctionShape.name().startsWith("L_BEND")) {
-                    String orient = junctionShape.name().substring(7);
-                    if (totalWidth == 1) {
-                        texture = RoadTexture.valueOf("SHOULDER_SINGLE_L_" + orient);
-                    }
-                    else if (totalWidth % 2 != 0) {
-                        texture = RoadTexture.valueOf("ODD_DIVIDER_L_" + orient);
-                    } else {
-                        String prefix = (totalWidth == 2) ? "DOUBLE_DIVIDER_L_" : "EVEN_DIVIDER_L_";
-                        texture = RoadTexture.valueOf(prefix + quadrant + "_" + orient);
-                    }
-                } else {
-                    texture = switch (junctionShape) {
-                        case L_ODD_NORTH_SOUTH -> RoadTexture.ODD_DIVIDER_Y_NORTHSOUTH;
-                        case L_ODD_EAST_WEST -> RoadTexture.ODD_DIVIDER_Y_EASTWEST;
-                        case L_EVEN_NORTH_SOUTH_LEFT -> RoadTexture.EVEN_DIVIDER_LEFT_Y_NORTHSOUTH;
-                        case L_EVEN_NORTH_SOUTH_RIGHT -> RoadTexture.EVEN_DIVIDER_RIGHT_Y_NORTHSOUTH;
-                        case L_EVEN_EAST_WEST_LEFT -> RoadTexture.EVEN_DIVIDER_LEFT_Y_EASTWEST;
-                        case L_EVEN_EAST_WEST_RIGHT -> RoadTexture.EVEN_DIVIDER_RIGHT_Y_EASTWEST;
-                        default -> RoadTexture.LANE;
-                    };
-                }
-            } else if (junctionShape == JunctionShape.NONE) {
-                if(corner == ShoulderCorner.FULL) {
-                    texture = RoadTexture.SHOULDER_SINGLE;
-                } else if (edge == ShoulderEdge.NORTHWEST) {
-                    if(corner == ShoulderCorner.NORTHWEST) {
-                        texture = RoadTexture.SHOULDER_INSIDE_CORNER_NORTHWEST;
-                    } else if (corner == ShoulderCorner.NORTH) {
-                        texture = RoadTexture.SHOULDER_EDGE_NORTH;
-                    } else if (corner == ShoulderCorner.WEST) {
-                        texture = RoadTexture.SHOULDER_EDGE_WEST;
-                    } else {
-                        texture = RoadTexture.SHOULDER_OUTSIDE_CORNER_NORTHWEST;
-                    }
-                } else if (edge == ShoulderEdge.NORTHEAST) {
-                    if(corner == ShoulderCorner.NORTHEAST) {
-                        texture = RoadTexture.SHOULDER_INSIDE_CORNER_NORTHEAST;
-                    } else if (corner == ShoulderCorner.NORTH) {
-                        texture = RoadTexture.SHOULDER_EDGE_NORTH;
-                    } else if (corner == ShoulderCorner.EAST) {
-                        texture = RoadTexture.SHOULDER_EDGE_EAST;
-                    } else {
-                        texture = RoadTexture.SHOULDER_OUTSIDE_CORNER_NORTHEAST;
-                    }
-                } else if (edge == ShoulderEdge.SOUTHEAST) {
-                    if(corner == ShoulderCorner.SOUTHEAST) {
-                        texture = RoadTexture.SHOULDER_INSIDE_CORNER_SOUTHEAST;
-                    } else if (corner == ShoulderCorner.SOUTH) {
-                        texture = RoadTexture.SHOULDER_EDGE_SOUTH;
-                    } else if (corner == ShoulderCorner.EAST) {
-                        texture = RoadTexture.SHOULDER_EDGE_EAST;
-                    } else {
-                        texture = RoadTexture.SHOULDER_OUTSIDE_CORNER_SOUTHEAST;
-                    }
-                } else if (edge == ShoulderEdge.SOUTHWEST) {
-                    if(corner == ShoulderCorner.SOUTHWEST) {
-                        texture = RoadTexture.SHOULDER_INSIDE_CORNER_SOUTHWEST;
-                    } else if (corner == ShoulderCorner.SOUTH) {
-                        texture = RoadTexture.SHOULDER_EDGE_SOUTH;
-                    } else if (corner == ShoulderCorner.WEST) {
-                        texture = RoadTexture.SHOULDER_EDGE_WEST;
-                    } else {
-                        texture = RoadTexture.SHOULDER_OUTSIDE_CORNER_SOUTHWEST;
-                    }
-                } else if (edge == ShoulderEdge.NORTH) {
-                    texture = RoadTexture.SHOULDER_EDGE_NORTH;
-                } else if (edge == ShoulderEdge.EAST) {
-                    texture = RoadTexture.SHOULDER_EDGE_EAST;
-                } else if (edge == ShoulderEdge.SOUTH) {
-                    texture = RoadTexture.SHOULDER_EDGE_SOUTH;
-                } else if (edge == ShoulderEdge.WEST) {
-                    texture = RoadTexture.SHOULDER_EDGE_WEST;
-                }
-            }
-        } else if (axis.isHorizontal()) {
-            if (crosswalk) {
-                if (totalWidth == 1) {
-                    texture = RoadTexture.CROSSWALK_SINGLE;
-                } else if (totalWidth == 2) {
-                    texture = (northRoad || westRoad) ? RoadTexture.CROSSWALK_SHOULDER_LEFT : RoadTexture.CROSSWALK_SHOULDER_RIGHT;
-                } else if (northRoad || westRoad) {
-                    texture = RoadTexture.CROSSWALK_SHOULDER_LEFT;
-                } else if (southRoad || eastRoad) {
-                    texture = RoadTexture.CROSSWALK_SHOULDER_RIGHT;
-                } else {
-                    texture = RoadTexture.CROSSWALK;
-                }
-            } else {
-                if (totalWidth == 1) {
-                    texture = RoadTexture.SINGLE;
-                } else {
-                    if (totalWidth == 2) {
-                        texture = (northRoad || westRoad) ? RoadTexture.SHOULDER_DIVIDER_LEFT : RoadTexture.SHOULDER_DIVIDER_RIGHT;
-                    } else if (northRoad || westRoad) {
-                        texture = RoadTexture.SHOULDER_LEFT;
-                    } else if (southRoad || eastRoad) {
-                        texture = RoadTexture.SHOULDER_RIGHT;
-                    } else if (totalWidth % 2 != 0 && leftWidth == totalWidth / 2) {
-                        texture = RoadTexture.ODD_DIVIDER;
-                    } else if (totalWidth % 2 == 0) {
-                        if (leftWidth == totalWidth / 2 - 1) {
-                            texture = RoadTexture.EVEN_DIVIDER_LEFT;
-                        } else if (leftWidth == totalWidth / 2) {
-                            texture = RoadTexture.EVEN_DIVIDER_RIGHT;
-                        }
-                    }
-                }
-            }
+            texture = switch(junctionShape) {
+                case NONE -> resolveVerticalShoulder(corner, edge);
+                case L_ODD_NORTH_SOUTH -> RoadTexture.ODD_DIVIDER_Y_NORTHSOUTH;
+                case L_ODD_EAST_WEST -> RoadTexture.ODD_DIVIDER_Y_EASTWEST;
+                case L_EVEN_NORTH_SOUTH_LEFT -> RoadTexture.EVEN_DIVIDER_LEFT_Y_NORTHSOUTH;
+                case L_EVEN_NORTH_SOUTH_RIGHT -> RoadTexture.EVEN_DIVIDER_RIGHT_Y_NORTHSOUTH;
+                case L_EVEN_EAST_WEST_LEFT -> RoadTexture.EVEN_DIVIDER_LEFT_Y_EASTWEST;
+                case L_EVEN_EAST_WEST_RIGHT -> RoadTexture.EVEN_DIVIDER_RIGHT_Y_EASTWEST;
+                default -> resolveJunctionTexture(junctionShape, quadrant, totalWidth);
+            };
+        } else {
+            texture = resolveHorizontalTexture(crosswalk, totalWidth, northRoad || westRoad, southRoad || eastRoad, leftWidth);
         }
 
         return state.setValue(TEXTURE, texture);
@@ -420,6 +319,65 @@ public class RoadBlock extends Block {
 
     private boolean isRoadHorizontal(Level level, BlockPos pos) {
         return level.getBlockState(pos).is(this) && level.getBlockState(pos).getValue(AXIS).isHorizontal();
+    }
+
+    private RoadTexture resolveCorner(ShoulderCorner corner, RoadTexture inside, RoadTexture cardinal1, RoadTexture cardinal2, RoadTexture outside) {
+        if (corner.name().equals(outside.name().substring(24))) return inside;
+        if (corner == ShoulderCorner.NORTH || corner == ShoulderCorner.SOUTH) return cardinal1;
+        if (corner == ShoulderCorner.EAST || corner == ShoulderCorner.WEST) return cardinal2;
+        return outside;
+    }
+
+    private RoadTexture resolveHorizontalTexture(boolean crosswalk, int totalWidth, boolean leftSide, boolean rightSide, int divider) {
+        if (crosswalk) {
+            if (totalWidth == 1) return RoadTexture.CROSSWALK_SINGLE;
+            if (leftSide) return RoadTexture.CROSSWALK_SHOULDER_LEFT;
+            if (rightSide) return RoadTexture.CROSSWALK_SHOULDER_RIGHT;
+            return RoadTexture.CROSSWALK;
+        }
+
+        if (totalWidth == 1) return RoadTexture.SINGLE;
+        if (totalWidth == 2) return leftSide ? RoadTexture.SHOULDER_DIVIDER_LEFT : RoadTexture.SHOULDER_DIVIDER_RIGHT;
+        if (leftSide) return RoadTexture.SHOULDER_LEFT;
+        if (rightSide) return RoadTexture.SHOULDER_RIGHT;
+
+        if (totalWidth % 2 != 0 && divider == totalWidth / 2) return RoadTexture.ODD_DIVIDER;
+        if (totalWidth % 2 == 0) {
+            if (divider == totalWidth / 2 - 1) return RoadTexture.EVEN_DIVIDER_LEFT;
+            if (divider == totalWidth / 2) return RoadTexture.EVEN_DIVIDER_RIGHT;
+        }
+
+        return RoadTexture.LANE;
+    }
+
+    private RoadTexture resolveJunctionTexture(JunctionShape junctionShape, String quadrant, int totalWidth) {
+        String name = junctionShape.name();
+        if (name.startsWith("T_")) {
+            return RoadTexture.valueOf("SHOULDER_SINGLE_" + name);
+        } else if (name.startsWith("L_BEND")) {
+            String orient = name.substring(7);
+            if (totalWidth == 1) return RoadTexture.valueOf("SHOULDER_SINGLE_L_" + orient);
+            if (totalWidth % 2 != 0) return RoadTexture.valueOf("ODD_DIVIDER_L_" + orient);
+            String prefix = (totalWidth == 2) ? "DOUBLE_DIVIDER_L_" : "EVEN_DIVIDER_L_";
+            return RoadTexture.valueOf(prefix + quadrant + "_" + orient);
+        }
+        return RoadTexture.LANE;
+    }
+
+    private RoadTexture resolveVerticalShoulder(ShoulderCorner corner, ShoulderEdge edge) {
+        if (corner == ShoulderCorner.FULL) return RoadTexture.SHOULDER_SINGLE;
+
+        return switch (edge) {
+            case NORTHWEST -> resolveCorner(corner, RoadTexture.SHOULDER_INSIDE_CORNER_NORTHWEST, RoadTexture.SHOULDER_EDGE_NORTH, RoadTexture.SHOULDER_EDGE_WEST, RoadTexture.SHOULDER_OUTSIDE_CORNER_NORTHWEST);
+            case NORTHEAST -> resolveCorner(corner, RoadTexture.SHOULDER_INSIDE_CORNER_NORTHEAST, RoadTexture.SHOULDER_EDGE_NORTH, RoadTexture.SHOULDER_EDGE_EAST, RoadTexture.SHOULDER_OUTSIDE_CORNER_NORTHEAST);
+            case SOUTHEAST -> resolveCorner(corner, RoadTexture.SHOULDER_INSIDE_CORNER_SOUTHEAST, RoadTexture.SHOULDER_EDGE_SOUTH, RoadTexture.SHOULDER_EDGE_EAST, RoadTexture.SHOULDER_OUTSIDE_CORNER_SOUTHEAST);
+            case SOUTHWEST -> resolveCorner(corner, RoadTexture.SHOULDER_INSIDE_CORNER_SOUTHWEST, RoadTexture.SHOULDER_EDGE_SOUTH, RoadTexture.SHOULDER_EDGE_WEST, RoadTexture.SHOULDER_OUTSIDE_CORNER_SOUTHWEST);
+            case NORTH -> RoadTexture.SHOULDER_EDGE_NORTH;
+            case EAST -> RoadTexture.SHOULDER_EDGE_EAST;
+            case SOUTH -> RoadTexture.SHOULDER_EDGE_SOUTH;
+            case WEST -> RoadTexture.SHOULDER_EDGE_WEST;
+            default -> RoadTexture.LANE;
+        };
     }
 
     private record AnchorInfo(int dist, int width, int laneIndex) {}
