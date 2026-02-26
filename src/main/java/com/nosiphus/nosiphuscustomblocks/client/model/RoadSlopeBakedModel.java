@@ -41,22 +41,20 @@ public class RoadSlopeBakedModel implements BakedModel {
             quads.add(createTop(asphalt, 0.0f));
 
             if (paint != null && state != null) {
-                // theory #2: Direct Enum Detection
                 RoadBlock.RoadTexture texture = state.getValue(RoadBlock.TEXTURE);
                 RoadBlock.SlopeState slope = state.getValue(RoadBlock.SLOPE);
 
                 boolean needsFlip = false;
 
-                // Explicit Check logic based on your provided list
-                if (slope == RoadBlock.SlopeState.NORTH ||
-                        slope == RoadBlock.SlopeState.EAST) {
+                if (slope == RoadBlock.SlopeState.STRAIGHT_NORTH ||
+                        slope == RoadBlock.SlopeState.STRAIGHT_EAST) {
                     if (texture == RoadBlock.RoadTexture.SHOULDER_RIGHT ||
                             texture == RoadBlock.RoadTexture.EVEN_DIVIDER_RIGHT ||
                             texture == RoadBlock.RoadTexture.SHOULDER_DIVIDER_RIGHT) {
                         needsFlip = true;
                     }
-                } else if (slope == RoadBlock.SlopeState.SOUTH ||
-                        slope == RoadBlock.SlopeState.WEST) {
+                } else if (slope == RoadBlock.SlopeState.STRAIGHT_SOUTH ||
+                        slope == RoadBlock.SlopeState.STRAIGHT_WEST) {
                     if (texture == RoadBlock.RoadTexture.SHOULDER_LEFT ||
                             texture == RoadBlock.RoadTexture.EVEN_DIVIDER_LEFT ||
                             texture == RoadBlock.RoadTexture.SHOULDER_DIVIDER_LEFT) {
@@ -75,8 +73,6 @@ public class RoadSlopeBakedModel implements BakedModel {
     }
 
     private BakedQuad createTop(TextureAtlasSprite sprite, float offset) {
-        // High North (z=0), Low South (z=1)
-        // Offset is applied to Y to lift the paint, and Z/X to keep it centered.
         Vector3f nwHigh = new Vector3f(0, 1 + offset, 0);
         Vector3f neHigh = new Vector3f(1, 1 + offset, 0);
         Vector3f seLow = new Vector3f(1, 0 + offset, 1);
@@ -95,9 +91,6 @@ public class RoadSlopeBakedModel implements BakedModel {
         Vector3f seL = new Vector3f(1, 0 + offset, 1);
         Vector3f swL = new Vector3f(0, 0 + offset, 1);
 
-        // Explicitly map the U/V corners
-        // Standard: (0,0) -> (1,0) -> (1,1) -> (0,1)
-        // Inverted: (1,1) -> (0,1) -> (0,0) -> (1,0)
         return BakedQuadHelper.create(
                 transform(swL), transform(seL), transform(neH), transform(nwH), // Geometry
                 new Vector3f(1, 0, 1), new Vector3f(0, 0, 1),
@@ -115,7 +108,6 @@ public class RoadSlopeBakedModel implements BakedModel {
         Vector3f v2 = transform(bSouth);
         Vector3f v3 = transform(tNorth);
 
-        // Map local UVs for sides to ensure they rotate with the block.
         if (x == 0f) {
             return BakedQuadHelper.create(v1, v2, v3, v3, bNorth, bSouth, tNorth, tNorth, asphalt, worldDir);
         } else {
@@ -130,7 +122,6 @@ public class RoadSlopeBakedModel implements BakedModel {
     }
 
     @Override public TextureAtlasSprite getParticleIcon() { return asphalt; }
-
     @Override public boolean useAmbientOcclusion() { return true; }
     @Override public boolean isGui3d() { return true; }
     @Override public boolean usesBlockLight() { return true; }

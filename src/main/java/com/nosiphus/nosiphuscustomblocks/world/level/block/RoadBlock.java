@@ -40,10 +40,10 @@ public class RoadBlock extends Block {
         VoxelShape shape = Shapes.empty();
         for (int i = 0; i < 16; i++) {
             shape = switch (slope) {
-                case NORTH -> Shapes.or(shape, Block.box(0, 0, 15 - i, 16, i + 1, 16 - i));
-                case SOUTH -> Shapes.or(shape, Block.box(0, 0, i, 16, i + 1, i + 1));
-                case EAST -> Shapes.or(shape, Block.box(i, 0, 0, i + 1, i + 1, 16));
-                case WEST -> Shapes.or(shape, Block.box(15 - i, 0, 0, 16 - i, i + 1, 16));
+                case STRAIGHT_NORTH -> Shapes.or(shape, Block.box(0, 0, 15 - i, 16, i + 1, 16 - i));
+                case STRAIGHT_SOUTH -> Shapes.or(shape, Block.box(0, 0, i, 16, i + 1, i + 1));
+                case STRAIGHT_EAST -> Shapes.or(shape, Block.box(i, 0, 0, i + 1, i + 1, 16));
+                case STRAIGHT_WEST -> Shapes.or(shape, Block.box(15 - i, 0, 0, 16 - i, i + 1, 16));
                 default -> shape;
             };
         }
@@ -227,15 +227,15 @@ public class RoadBlock extends Block {
             RoadTexture inherited = below.getValue(TEXTURE);
             if (axis == Direction.Axis.X) {
                 if (isRoadAxis(level, pos.east(), axis)) {
-                    return state.setValue(SLOPE, SlopeState.EAST).setValue(TEXTURE, inherited);
+                    return state.setValue(SLOPE, SlopeState.STRAIGHT_EAST).setValue(TEXTURE, inherited);
                 } else if (isRoadAxis(level, pos.west(), axis)) {
-                    return state.setValue(SLOPE, SlopeState.WEST).setValue(TEXTURE, inherited);
+                    return state.setValue(SLOPE, SlopeState.STRAIGHT_WEST).setValue(TEXTURE, inherited);
                 }
             } else if (axis == Direction.Axis.Z) {
                 if (isRoadAxis(level, pos.north(), axis)) {
-                    return state.setValue(SLOPE, SlopeState.NORTH).setValue(TEXTURE, inherited);
+                    return state.setValue(SLOPE, SlopeState.STRAIGHT_NORTH).setValue(TEXTURE, inherited);
                 } else if (isRoadAxis(level, pos.south(), axis)) {
-                    return state.setValue(SLOPE, SlopeState.SOUTH).setValue(TEXTURE, inherited);
+                    return state.setValue(SLOPE, SlopeState.STRAIGHT_SOUTH).setValue(TEXTURE, inherited);
                 }
             }
         }
@@ -580,10 +580,10 @@ public class RoadBlock extends Block {
 
     public enum SlopeState implements StringRepresentable {
         NONE("none"),
-        NORTH("north"),
-        EAST("east"),
-        SOUTH("south"),
-        WEST("west");
+        STRAIGHT_NORTH("straight_north"),
+        STRAIGHT_EAST("straight_east"),
+        STRAIGHT_SOUTH("straight_south"),
+        STRAIGHT_WEST("straight_west");
 
         private final String name;
 
