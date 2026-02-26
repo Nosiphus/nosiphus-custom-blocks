@@ -113,24 +113,6 @@ public class RoadBlock extends Block {
     }
 
     private BlockState calculateHorizontalRoad(Level level, BlockPos pos, BlockState state, Direction.Axis axis) {
-        BlockState below = level.getBlockState(pos.below());
-        if(below.is(this) && below.getValue(AXIS) == axis) {
-            RoadTexture inherited = below.getValue(TEXTURE);
-            if (axis == Direction.Axis.X) {
-                if (isRoadAxis(level, pos.east(), axis)) {
-                    return state.setValue(SLOPE, SlopeState.STRAIGHT_EAST).setValue(TEXTURE, inherited);
-                } else if (isRoadAxis(level, pos.west(), axis)) {
-                    return state.setValue(SLOPE, SlopeState.STRAIGHT_WEST).setValue(TEXTURE, inherited);
-                }
-            } else if (axis == Direction.Axis.Z) {
-                if (isRoadAxis(level, pos.north(), axis)) {
-                    return state.setValue(SLOPE, SlopeState.STRAIGHT_NORTH).setValue(TEXTURE, inherited);
-                } else if (isRoadAxis(level, pos.south(), axis)) {
-                    return state.setValue(SLOPE, SlopeState.STRAIGHT_SOUTH).setValue(TEXTURE, inherited);
-                }
-            }
-        }
-
         Direction widthDirection = (axis == Direction.Axis.X) ? Direction.NORTH : Direction.WEST;
         Direction flowDirection = (axis == Direction.Axis.X) ? Direction.EAST : Direction.SOUTH;
 
@@ -204,52 +186,64 @@ public class RoadBlock extends Block {
         ShoulderEdge edge = ShoulderEdge.NONE;
         String quadrant = "NONE";
 
-        if (!northHub && !southHub && !eastHub && !westHub) {
-            corner = ShoulderCorner.FULL;
-        } else if (!northHub && !westHub && southHub && eastHub) {
-            edge = ShoulderEdge.NORTHWEST;
-            if (northRoad && westRoad) {
-                corner = ShoulderCorner.NORTHWEST;
-            } else if (northRoad) {
-                corner = ShoulderCorner.WEST;
-            } else if (westRoad) {
-                corner = ShoulderCorner.NORTH;
+        int hubMask = (northHub ? 8 : 0) | (southHub ? 4 : 0) | (eastHub ? 2 : 0) | (westHub ? 1 : 0);
+
+        switch (hubMask) {
+            case 0 -> corner = ShoulderCorner.FULL;
+            case 6 -> {
+                edge = ShoulderEdge.NORTHWEST;
+                if (northRoad && westRoad) {
+                    corner = ShoulderCorner.NORTHWEST;
+                } else if (northRoad) {
+                    corner = ShoulderCorner.WEST;
+                } else if (westRoad) {
+                    corner = ShoulderCorner.NORTH;
+                }
             }
-        } else if (!northHub && !eastHub && southHub && westHub) {
-            edge = ShoulderEdge.NORTHEAST;
-            if (northRoad && eastRoad) {
-                corner = ShoulderCorner.NORTHEAST;
-            } else if (northRoad) {
-                corner = ShoulderCorner.EAST;
-            } else if (eastRoad) {
-                corner = ShoulderCorner.NORTH;
+            case 5 -> {
+                edge = ShoulderEdge.NORTHEAST;
+                if (northRoad && eastRoad) {
+                    corner = ShoulderCorner.NORTHEAST;
+                } else if (northRoad) {
+                    corner = ShoulderCorner.EAST;
+                } else if (eastRoad) {
+                    corner = ShoulderCorner.NORTH;
+                }
             }
-        } else if (!southHub && !westHub && northHub && eastHub) {
-            edge = ShoulderEdge.SOUTHWEST;
-            if (southRoad && westRoad) {
-                corner = ShoulderCorner.SOUTHWEST;
-            } else if (southRoad) {
-                corner = ShoulderCorner.WEST;
-            } else if (westRoad) {
-                corner = ShoulderCorner.SOUTH;
+            case 10 -> {
+                edge = ShoulderEdge.SOUTHWEST;
+                if (southRoad && westRoad) {
+                    corner = ShoulderCorner.SOUTHWEST;
+                } else if (southRoad) {
+                    corner = ShoulderCorner.WEST;
+                } else if (westRoad) {
+                    corner = ShoulderCorner.SOUTH;
+                }
             }
-        } else if (!southHub && !eastHub && northHub && westHub) {
-            edge = ShoulderEdge.SOUTHEAST;
-            if (southRoad && eastRoad) {
-                corner = ShoulderCorner.SOUTHEAST;
-            } else if (southRoad) {
-                corner = ShoulderCorner.EAST;
-            } else if (eastRoad) {
-                corner = ShoulderCorner.SOUTH;
+            case 9 -> {
+                edge = ShoulderEdge.SOUTHEAST;
+                if (southRoad && eastRoad) {
+                    corner = ShoulderCorner.SOUTHEAST;
+                } else if (southRoad) {
+                    corner = ShoulderCorner.EAST;
+                } else if (eastRoad) {
+                    corner = ShoulderCorner.SOUTH;
+                }
             }
-        } else if (!northHub && southHub) {
-            if (!isRoad(level, pos.north())) edge = ShoulderEdge.NORTH;
-        } else if (!southHub && northHub) {
-            if (!isRoad(level, pos.south())) edge = ShoulderEdge.SOUTH;
-        } else if (!eastHub && westHub) {
-            if (!isRoad(level, pos.east())) edge = ShoulderEdge.EAST;
-        } else if (!westHub && eastHub) {
-            if (!isRoad(level, pos.west())) edge = ShoulderEdge.WEST;
+            default -> {
+                if (!northHub && southHub && !isRoad(level, pos.north())) {
+                    edge = ShoulderEdge.NORTH;
+                }
+                else if (!southHub && northHub && !isRoad(level, pos.south())) {
+                    edge = ShoulderEdge.SOUTH;
+                }
+                else if (!eastHub && westHub && !isRoad(level, pos.east())) {
+                    edge = ShoulderEdge.EAST;
+                }
+                else if (!westHub && eastHub && !isRoad(level, pos.west())) {
+                    edge = ShoulderEdge.WEST;
+                }
+            }
         }
 
         boolean hasVertical = (north.dist < 20 ^ south.dist < 20);
@@ -261,29 +255,19 @@ public class RoadBlock extends Block {
             AnchorInfo verticalAnchor = (north.dist < 20) ? north : south;
             AnchorInfo horizontalAnchor = (east.dist < 20) ? east : west;
 
-            int verticalDivider = (verticalAnchor.width % 2 != 0) ? (verticalAnchor.laneIndex == verticalAnchor.width / 2 ? 3 : 0) : (verticalAnchor.laneIndex == (verticalAnchor.width / 2) - 1 ? 1 : (verticalAnchor.laneIndex == verticalAnchor.width / 2 ? 2 : 0));
-            int horizontalDivider = (horizontalAnchor.width % 2 != 0) ? (horizontalAnchor.laneIndex == horizontalAnchor.width / 2 ? 3 : 0) : (horizontalAnchor.laneIndex == (horizontalAnchor.width / 2) - 1 ? 1 : (horizontalAnchor.laneIndex == horizontalAnchor.width / 2 ? 2 : 0));
+            int verticalDivider = getDividerType(verticalAnchor);
+            int horizontalDivider = getDividerType(horizontalAnchor);
 
             if (verticalAnchor.dist <= limit && horizontalAnchor.dist <= limit && (verticalDivider > 0 || horizontalDivider > 0)) {
                 if (verticalDivider > 0 && horizontalDivider > 0) {
-                    if (north.dist < 20 && west.dist < 20) {
-                        junctionShape = JunctionShape.L_BEND_NORTHWEST;
-                    } else if (north.dist < 20 && east.dist < 20) {
-                        junctionShape = JunctionShape.L_BEND_NORTHEAST;
-                    } else if (south.dist < 20 && east.dist < 20) {
-                        junctionShape = JunctionShape.L_BEND_SOUTHEAST;
-                    } else if (south.dist < 20 && west.dist < 20) {
-                        junctionShape = JunctionShape.L_BEND_SOUTHWEST;
-                    }
-
-                    if (junctionShape == JunctionShape.L_BEND_SOUTHEAST)
-                        quadrant = (verticalDivider == 1) ? (horizontalDivider == 1 ? "TOP_LEFT" : "BOTTOM_LEFT") : (horizontalDivider == 1 ? "TOP_RIGHT" : "BOTTOM_RIGHT");
-                    else if (junctionShape == JunctionShape.L_BEND_SOUTHWEST)
-                        quadrant = (verticalDivider == 1) ? (horizontalDivider == 1 ? "BOTTOM_LEFT" : "BOTTOM_RIGHT") : (horizontalDivider == 1 ? "TOP_LEFT" : "TOP_RIGHT");
-                    else if (junctionShape == JunctionShape.L_BEND_NORTHWEST)
-                        quadrant = (verticalDivider == 1) ? (horizontalDivider == 1 ? "BOTTOM_RIGHT" : "TOP_RIGHT") : (horizontalDivider == 1 ? "BOTTOM_LEFT" : "TOP_LEFT");
-                    else if (junctionShape == JunctionShape.L_BEND_NORTHEAST)
-                        quadrant = (verticalDivider == 1) ? (horizontalDivider == 1 ? "TOP_RIGHT" : "TOP_LEFT") : (horizontalDivider == 1 ? "BOTTOM_RIGHT" : "BOTTOM_LEFT");
+                    int roadMask = (north.dist < 20 ? 8 : 0) | (west.dist < 20 ? 1 : 0);
+                    junctionShape = switch (roadMask) {
+                        case 9 -> JunctionShape.L_BEND_NORTHWEST;
+                        case 8 -> JunctionShape.L_BEND_NORTHEAST;
+                        case 1 -> JunctionShape.L_BEND_SOUTHWEST;
+                        default -> JunctionShape.L_BEND_SOUTHEAST;
+                    };
+                    quadrant = resolveQuadrant(junctionShape, verticalDivider, horizontalDivider);
                 } else if (verticalDivider > 0) {
                     junctionShape = (verticalDivider == 3) ? JunctionShape.L_ODD_NORTH_SOUTH : (verticalDivider == 1 ? JunctionShape.L_EVEN_NORTH_SOUTH_LEFT : JunctionShape.L_EVEN_NORTH_SOUTH_RIGHT);
                 } else if (horizontalDivider > 0) {
@@ -293,13 +277,15 @@ public class RoadBlock extends Block {
         }
 
         if (roadWidth == 1 && totalConnections == 3) {
-            if (north.dist >= 20) junctionShape = JunctionShape.T_NORTH;
-            else if (south.dist >= 20) junctionShape = JunctionShape.T_SOUTH;
-            else if (east.dist >= 20) junctionShape = JunctionShape.T_EAST;
-            else if (west.dist >= 20) junctionShape = JunctionShape.T_WEST;
+            junctionShape = (north.dist >= 20) ? JunctionShape.T_NORTH : (south.dist >= 20) ? JunctionShape.T_SOUTH : (east.dist >= 20) ? JunctionShape.T_EAST : JunctionShape.T_WEST;
         }
 
         return getRoadTexture(state, junctionShape, quadrant, corner, edge, false, !isRoad(level, pos.north()), !isRoad(level, pos.south()), !isRoad(level, pos.west()), !isRoad(level, pos.east()), 0, 0, roadWidth);
+    }
+
+    private int getDividerType(AnchorInfo info) {
+        if (info.width % 2 != 0) return (info.laneIndex == info.width / 2) ? 3 : 0;
+        return (info.laneIndex == (info.width / 2) - 1) ? 1 : (info.laneIndex == info.width / 2 ? 2 : 0);
     }
 
     private BlockState getSlopeInheritance(Level level, BlockPos pos, BlockState state, Direction.Axis axis, RoadTexture inherited) {
@@ -389,6 +375,16 @@ public class RoadBlock extends Block {
             return RoadTexture.valueOf(prefix + quadrant + "_" + orient);
         }
         return RoadTexture.LANE;
+    }
+
+    private String resolveQuadrant(JunctionShape bend, int verticalDivider, int horizontalDivider) {
+        return switch (bend) {
+            case L_BEND_SOUTHEAST -> (verticalDivider == 1) ? (horizontalDivider == 1 ? "TOP_LEFT" : "BOTTOM_LEFT") : (horizontalDivider == 1 ? "TOP_RIGHT" : "BOTTOM_RIGHT");
+            case L_BEND_SOUTHWEST -> (verticalDivider == 1) ? (horizontalDivider == 1 ? "BOTTOM_LEFT" : "BOTTOM_RIGHT") : (horizontalDivider == 1 ? "TOP_LEFT" : "TOP_RIGHT");
+            case L_BEND_NORTHWEST -> (verticalDivider == 1) ? (horizontalDivider == 1 ? "BOTTOM_RIGHT" : "TOP_RIGHT") : (horizontalDivider == 1 ? "BOTTOM_LEFT" : "TOP_LEFT");
+            case L_BEND_NORTHEAST -> (verticalDivider == 1) ? (horizontalDivider == 1 ? "TOP_RIGHT" : "TOP_LEFT") : (horizontalDivider == 1 ? "BOTTOM_RIGHT" : "BOTTOM_LEFT");
+            default -> "NONE";
+        };
     }
 
     private RoadTexture resolveVerticalShoulder(ShoulderCorner corner, ShoulderEdge edge) {
