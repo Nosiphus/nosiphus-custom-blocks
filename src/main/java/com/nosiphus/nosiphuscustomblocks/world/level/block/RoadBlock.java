@@ -99,129 +99,20 @@ public class RoadBlock extends Block {
     private BlockState getRoadState(Level level, BlockPos pos, BlockState state) {
         Direction.Axis axis = state.getValue(AXIS);
 
-        //Vertical Logic
         if (axis.isVertical()) {
-            boolean northHub = isRoadAxis(level, pos.north(), Direction.Axis.Y);
-            boolean eastHub = isRoadAxis(level, pos.east(), Direction.Axis.Y);
-            boolean southHub = isRoadAxis(level, pos.south(), Direction.Axis.Y);
-            boolean westHub = isRoadAxis(level, pos.west(), Direction.Axis.Y);
-
-            boolean northRoad = isRoadHorizontal(level, pos.north());
-            boolean eastRoad = isRoadHorizontal(level, pos.east());
-            boolean southRoad = isRoadHorizontal(level, pos.south());
-            boolean westRoad = isRoadHorizontal(level, pos.west());
-
-            AnchorInfo north = scanAnchor(level, pos, Direction.NORTH);
-            AnchorInfo east = scanAnchor(level, pos, Direction.EAST);
-            AnchorInfo south = scanAnchor(level, pos, Direction.SOUTH);
-            AnchorInfo west = scanAnchor(level, pos, Direction.WEST);
-
-            int roadWidth = (north.dist < 20 && south.dist < 20) ? (north.dist + south.dist - 1) :
-                    (east.dist < 20 && west.dist < 20) ? (east.dist + west.dist - 1) :
-                            Math.max(Math.max(north.width, south.width), Math.max(east.width, west.width));
-
-            float limit = (roadWidth % 2 != 0) ? (roadWidth / 2.0f + 0.5f) : (roadWidth / 2.0f + 1.0f);
-
-            JunctionShape junctionShape = JunctionShape.NONE;
-            ShoulderCorner corner = ShoulderCorner.NONE;
-            ShoulderEdge edge = ShoulderEdge.NONE;
-            String quadrant = "NONE";
-
-            if (!northHub && !southHub && !eastHub && !westHub) {
-                corner = ShoulderCorner.FULL;
-            } else if (!northHub && !westHub && southHub && eastHub) {
-                edge = ShoulderEdge.NORTHWEST;
-                if (northRoad && westRoad) {
-                    corner = ShoulderCorner.NORTHWEST;
-                } else if (northRoad) {
-                    corner = ShoulderCorner.WEST;
-                } else if (westRoad) {
-                    corner = ShoulderCorner.NORTH;
-                }
-            } else if (!northHub && !eastHub && southHub && westHub) {
-                edge = ShoulderEdge.NORTHEAST;
-                if (northRoad && eastRoad) {
-                    corner = ShoulderCorner.NORTHEAST;
-                } else if (northRoad) {
-                    corner = ShoulderCorner.EAST;
-                } else if (eastRoad) {
-                    corner = ShoulderCorner.NORTH;
-                }
-            } else if (!southHub && !westHub && northHub && eastHub) {
-                edge = ShoulderEdge.SOUTHWEST;
-                if (southRoad && westRoad) {
-                    corner = ShoulderCorner.SOUTHWEST;
-                } else if (southRoad) {
-                    corner = ShoulderCorner.WEST;
-                } else if (westRoad) {
-                    corner = ShoulderCorner.SOUTH;
-                }
-            } else if (!southHub && !eastHub && northHub && westHub) {
-                edge = ShoulderEdge.SOUTHEAST;
-                if (southRoad && eastRoad) {
-                    corner = ShoulderCorner.SOUTHEAST;
-                } else if (southRoad) {
-                    corner = ShoulderCorner.EAST;
-                } else if (eastRoad) {
-                    corner = ShoulderCorner.SOUTH;
-                }
-            } else if (!northHub && southHub) {
-                if (!isRoad(level, pos.north())) edge = ShoulderEdge.NORTH;
-            } else if (!southHub && northHub) {
-                if (!isRoad(level, pos.south())) edge = ShoulderEdge.SOUTH;
-            } else if (!eastHub && westHub) {
-                if (!isRoad(level, pos.east())) edge = ShoulderEdge.EAST;
-            } else if (!westHub && eastHub) {
-                if (!isRoad(level, pos.west())) edge = ShoulderEdge.WEST;
-            }
-
-            boolean hasVertical = (north.dist < 20 ^ south.dist < 20);
-            boolean hasHorizontal = (east.dist < 20 ^ west.dist < 20);
-
-            int totalConnections = (north.dist < 20 ? 1 : 0) + (south.dist < 20 ? 1 : 0) + (east.dist < 20 ? 1 : 0) + (west.dist < 20 ? 1 : 0);
-
-            if (hasVertical && hasHorizontal && totalConnections == 2) {
-               AnchorInfo verticalAnchor = (north.dist < 20) ? north : south;
-               AnchorInfo horizontalAnchor = (east.dist < 20) ? east : west;
-
-               int verticalDivider = (verticalAnchor.width % 2 != 0) ? (verticalAnchor.laneIndex == verticalAnchor.width / 2 ? 3 : 0) : (verticalAnchor.laneIndex == (verticalAnchor.width / 2) - 1 ? 1 : (verticalAnchor.laneIndex == verticalAnchor.width / 2 ? 2 : 0));
-               int horizontalDivider = (horizontalAnchor.width % 2 != 0) ? (horizontalAnchor.laneIndex == horizontalAnchor.width / 2 ? 3 : 0) : (horizontalAnchor.laneIndex == (horizontalAnchor.width / 2) - 1 ? 1 : (horizontalAnchor.laneIndex == horizontalAnchor.width / 2 ? 2 : 0));
-
-               if (verticalAnchor.dist <= limit && horizontalAnchor.dist <= limit && (verticalDivider > 0 || horizontalDivider > 0)) {
-                   if (verticalDivider > 0 && horizontalDivider > 0) {
-                       if (north.dist < 20 && west.dist < 20) {
-                           junctionShape = JunctionShape.L_BEND_NORTHWEST;
-                       } else if (north.dist < 20 && east.dist < 20) {
-                           junctionShape = JunctionShape.L_BEND_NORTHEAST;
-                       } else if (south.dist < 20 && east.dist < 20) {
-                           junctionShape = JunctionShape.L_BEND_SOUTHEAST;
-                       } else if (south.dist < 20 && west.dist < 20) {
-                           junctionShape = JunctionShape.L_BEND_SOUTHWEST;
-                       }
-
-                       if (junctionShape == JunctionShape.L_BEND_SOUTHEAST) quadrant = (verticalDivider == 1) ? (horizontalDivider == 1 ? "TOP_LEFT" : "BOTTOM_LEFT") : (horizontalDivider == 1 ? "TOP_RIGHT" : "BOTTOM_RIGHT");
-                       else if (junctionShape == JunctionShape.L_BEND_SOUTHWEST) quadrant = (verticalDivider == 1) ? (horizontalDivider == 1 ? "BOTTOM_LEFT" : "BOTTOM_RIGHT") : (horizontalDivider == 1 ? "TOP_LEFT" : "TOP_RIGHT");
-                       else if (junctionShape == JunctionShape.L_BEND_NORTHWEST) quadrant = (verticalDivider == 1) ? (horizontalDivider == 1 ? "BOTTOM_RIGHT" : "TOP_RIGHT") : (horizontalDivider == 1 ? "BOTTOM_LEFT" : "TOP_LEFT");
-                       else if (junctionShape == JunctionShape.L_BEND_NORTHEAST) quadrant = (verticalDivider == 1) ? (horizontalDivider == 1 ? "TOP_RIGHT" : "TOP_LEFT") : (horizontalDivider == 1 ? "BOTTOM_RIGHT" : "BOTTOM_LEFT");
-                   } else if (verticalDivider > 0) {
-                       junctionShape = (verticalDivider == 3) ? JunctionShape.L_ODD_NORTH_SOUTH : (verticalDivider == 1 ? JunctionShape.L_EVEN_NORTH_SOUTH_LEFT : JunctionShape.L_EVEN_NORTH_SOUTH_RIGHT);
-                   } else if (horizontalDivider > 0) {
-                       junctionShape = (horizontalDivider == 3) ? JunctionShape.L_ODD_EAST_WEST : (horizontalDivider == 1 ? JunctionShape.L_EVEN_EAST_WEST_LEFT : JunctionShape.L_EVEN_EAST_WEST_RIGHT);
-                   }
-               }
-            }
-
-            if(roadWidth == 1 && totalConnections == 3) {
-                if (north.dist >= 20) junctionShape = JunctionShape.T_NORTH;
-                else if (south.dist >= 20) junctionShape = JunctionShape.T_SOUTH;
-                else if (east.dist >= 20) junctionShape = JunctionShape.T_EAST;
-                else if (west.dist >= 20) junctionShape = JunctionShape.T_WEST;
-            }
-
-            return getRoadTexture(state, junctionShape, quadrant, corner, edge, false, !isRoad(level, pos.north()), !isRoad(level, pos.south()), !isRoad(level, pos.west()), !isRoad(level, pos.east()), 0, 0, roadWidth);
+            return calculateVerticalRoad(level, pos, state);
         }
 
-        //Horizontal Logic
+        BlockState below = level.getBlockState(pos.below());
+        if (below.is(this) && below.getValue(AXIS) == axis) {
+            return getSlopeInheritance(level, pos, state, axis, below.getValue(TEXTURE));
+        }
+
+        return calculateHorizontalRoad(level, pos, state, axis);
+
+    }
+
+    private BlockState calculateHorizontalRoad(Level level, BlockPos pos, BlockState state, Direction.Axis axis) {
         BlockState below = level.getBlockState(pos.below());
         if(below.is(this) && below.getValue(AXIS) == axis) {
             RoadTexture inherited = below.getValue(TEXTURE);
@@ -284,7 +175,143 @@ public class RoadBlock extends Block {
         }
 
         return getRoadTexture(state, JunctionShape.NONE, "NONE", ShoulderCorner.NONE, ShoulderEdge.NONE, hasCrosswalk, leftWidth == 0, rightWidth == 0, false, false, leftWidth, rightWidth, totalWidth);
+    }
 
+    private BlockState calculateVerticalRoad(Level level, BlockPos pos, BlockState state) {
+        boolean northHub = isRoadAxis(level, pos.north(), Direction.Axis.Y);
+        boolean eastHub = isRoadAxis(level, pos.east(), Direction.Axis.Y);
+        boolean southHub = isRoadAxis(level, pos.south(), Direction.Axis.Y);
+        boolean westHub = isRoadAxis(level, pos.west(), Direction.Axis.Y);
+
+        boolean northRoad = isRoadHorizontal(level, pos.north());
+        boolean eastRoad = isRoadHorizontal(level, pos.east());
+        boolean southRoad = isRoadHorizontal(level, pos.south());
+        boolean westRoad = isRoadHorizontal(level, pos.west());
+
+        AnchorInfo north = scanAnchor(level, pos, Direction.NORTH);
+        AnchorInfo east = scanAnchor(level, pos, Direction.EAST);
+        AnchorInfo south = scanAnchor(level, pos, Direction.SOUTH);
+        AnchorInfo west = scanAnchor(level, pos, Direction.WEST);
+
+        int roadWidth = (north.dist < 20 && south.dist < 20) ? (north.dist + south.dist - 1) :
+                (east.dist < 20 && west.dist < 20) ? (east.dist + west.dist - 1) :
+                        Math.max(Math.max(north.width, south.width), Math.max(east.width, west.width));
+
+        float limit = (roadWidth % 2 != 0) ? (roadWidth / 2.0f + 0.5f) : (roadWidth / 2.0f + 1.0f);
+
+        JunctionShape junctionShape = JunctionShape.NONE;
+        ShoulderCorner corner = ShoulderCorner.NONE;
+        ShoulderEdge edge = ShoulderEdge.NONE;
+        String quadrant = "NONE";
+
+        if (!northHub && !southHub && !eastHub && !westHub) {
+            corner = ShoulderCorner.FULL;
+        } else if (!northHub && !westHub && southHub && eastHub) {
+            edge = ShoulderEdge.NORTHWEST;
+            if (northRoad && westRoad) {
+                corner = ShoulderCorner.NORTHWEST;
+            } else if (northRoad) {
+                corner = ShoulderCorner.WEST;
+            } else if (westRoad) {
+                corner = ShoulderCorner.NORTH;
+            }
+        } else if (!northHub && !eastHub && southHub && westHub) {
+            edge = ShoulderEdge.NORTHEAST;
+            if (northRoad && eastRoad) {
+                corner = ShoulderCorner.NORTHEAST;
+            } else if (northRoad) {
+                corner = ShoulderCorner.EAST;
+            } else if (eastRoad) {
+                corner = ShoulderCorner.NORTH;
+            }
+        } else if (!southHub && !westHub && northHub && eastHub) {
+            edge = ShoulderEdge.SOUTHWEST;
+            if (southRoad && westRoad) {
+                corner = ShoulderCorner.SOUTHWEST;
+            } else if (southRoad) {
+                corner = ShoulderCorner.WEST;
+            } else if (westRoad) {
+                corner = ShoulderCorner.SOUTH;
+            }
+        } else if (!southHub && !eastHub && northHub && westHub) {
+            edge = ShoulderEdge.SOUTHEAST;
+            if (southRoad && eastRoad) {
+                corner = ShoulderCorner.SOUTHEAST;
+            } else if (southRoad) {
+                corner = ShoulderCorner.EAST;
+            } else if (eastRoad) {
+                corner = ShoulderCorner.SOUTH;
+            }
+        } else if (!northHub && southHub) {
+            if (!isRoad(level, pos.north())) edge = ShoulderEdge.NORTH;
+        } else if (!southHub && northHub) {
+            if (!isRoad(level, pos.south())) edge = ShoulderEdge.SOUTH;
+        } else if (!eastHub && westHub) {
+            if (!isRoad(level, pos.east())) edge = ShoulderEdge.EAST;
+        } else if (!westHub && eastHub) {
+            if (!isRoad(level, pos.west())) edge = ShoulderEdge.WEST;
+        }
+
+        boolean hasVertical = (north.dist < 20 ^ south.dist < 20);
+        boolean hasHorizontal = (east.dist < 20 ^ west.dist < 20);
+
+        int totalConnections = (north.dist < 20 ? 1 : 0) + (south.dist < 20 ? 1 : 0) + (east.dist < 20 ? 1 : 0) + (west.dist < 20 ? 1 : 0);
+
+        if (hasVertical && hasHorizontal && totalConnections == 2) {
+            AnchorInfo verticalAnchor = (north.dist < 20) ? north : south;
+            AnchorInfo horizontalAnchor = (east.dist < 20) ? east : west;
+
+            int verticalDivider = (verticalAnchor.width % 2 != 0) ? (verticalAnchor.laneIndex == verticalAnchor.width / 2 ? 3 : 0) : (verticalAnchor.laneIndex == (verticalAnchor.width / 2) - 1 ? 1 : (verticalAnchor.laneIndex == verticalAnchor.width / 2 ? 2 : 0));
+            int horizontalDivider = (horizontalAnchor.width % 2 != 0) ? (horizontalAnchor.laneIndex == horizontalAnchor.width / 2 ? 3 : 0) : (horizontalAnchor.laneIndex == (horizontalAnchor.width / 2) - 1 ? 1 : (horizontalAnchor.laneIndex == horizontalAnchor.width / 2 ? 2 : 0));
+
+            if (verticalAnchor.dist <= limit && horizontalAnchor.dist <= limit && (verticalDivider > 0 || horizontalDivider > 0)) {
+                if (verticalDivider > 0 && horizontalDivider > 0) {
+                    if (north.dist < 20 && west.dist < 20) {
+                        junctionShape = JunctionShape.L_BEND_NORTHWEST;
+                    } else if (north.dist < 20 && east.dist < 20) {
+                        junctionShape = JunctionShape.L_BEND_NORTHEAST;
+                    } else if (south.dist < 20 && east.dist < 20) {
+                        junctionShape = JunctionShape.L_BEND_SOUTHEAST;
+                    } else if (south.dist < 20 && west.dist < 20) {
+                        junctionShape = JunctionShape.L_BEND_SOUTHWEST;
+                    }
+
+                    if (junctionShape == JunctionShape.L_BEND_SOUTHEAST)
+                        quadrant = (verticalDivider == 1) ? (horizontalDivider == 1 ? "TOP_LEFT" : "BOTTOM_LEFT") : (horizontalDivider == 1 ? "TOP_RIGHT" : "BOTTOM_RIGHT");
+                    else if (junctionShape == JunctionShape.L_BEND_SOUTHWEST)
+                        quadrant = (verticalDivider == 1) ? (horizontalDivider == 1 ? "BOTTOM_LEFT" : "BOTTOM_RIGHT") : (horizontalDivider == 1 ? "TOP_LEFT" : "TOP_RIGHT");
+                    else if (junctionShape == JunctionShape.L_BEND_NORTHWEST)
+                        quadrant = (verticalDivider == 1) ? (horizontalDivider == 1 ? "BOTTOM_RIGHT" : "TOP_RIGHT") : (horizontalDivider == 1 ? "BOTTOM_LEFT" : "TOP_LEFT");
+                    else if (junctionShape == JunctionShape.L_BEND_NORTHEAST)
+                        quadrant = (verticalDivider == 1) ? (horizontalDivider == 1 ? "TOP_RIGHT" : "TOP_LEFT") : (horizontalDivider == 1 ? "BOTTOM_RIGHT" : "BOTTOM_LEFT");
+                } else if (verticalDivider > 0) {
+                    junctionShape = (verticalDivider == 3) ? JunctionShape.L_ODD_NORTH_SOUTH : (verticalDivider == 1 ? JunctionShape.L_EVEN_NORTH_SOUTH_LEFT : JunctionShape.L_EVEN_NORTH_SOUTH_RIGHT);
+                } else if (horizontalDivider > 0) {
+                    junctionShape = (horizontalDivider == 3) ? JunctionShape.L_ODD_EAST_WEST : (horizontalDivider == 1 ? JunctionShape.L_EVEN_EAST_WEST_LEFT : JunctionShape.L_EVEN_EAST_WEST_RIGHT);
+                }
+            }
+        }
+
+        if (roadWidth == 1 && totalConnections == 3) {
+            if (north.dist >= 20) junctionShape = JunctionShape.T_NORTH;
+            else if (south.dist >= 20) junctionShape = JunctionShape.T_SOUTH;
+            else if (east.dist >= 20) junctionShape = JunctionShape.T_EAST;
+            else if (west.dist >= 20) junctionShape = JunctionShape.T_WEST;
+        }
+
+        return getRoadTexture(state, junctionShape, quadrant, corner, edge, false, !isRoad(level, pos.north()), !isRoad(level, pos.south()), !isRoad(level, pos.west()), !isRoad(level, pos.east()), 0, 0, roadWidth);
+    }
+
+    private BlockState getSlopeInheritance(Level level, BlockPos pos, BlockState state, Direction.Axis axis, RoadTexture inherited) {
+        SlopeState slope = SlopeState.NONE;
+        if (axis == Direction.Axis.X) {
+            if (isRoadAxis(level, pos.east(), axis)) slope = SlopeState.STRAIGHT_EAST;
+            else if (isRoadAxis(level, pos.west(), axis)) slope = SlopeState.STRAIGHT_WEST;
+        } else if (axis == Direction.Axis.Z) {
+            if (isRoadAxis(level, pos.north(), axis)) slope = SlopeState.STRAIGHT_NORTH;
+            else if (isRoadAxis(level, pos.south(), axis)) slope = SlopeState.STRAIGHT_SOUTH;
+        }
+        return state.setValue(SLOPE, slope).setValue(TEXTURE, inherited);
     }
 
     private BlockState getRoadTexture(BlockState state, JunctionShape junctionShape, String quadrant, ShoulderCorner corner, ShoulderEdge edge, boolean crosswalk, boolean northRoad, boolean southRoad, boolean westRoad, boolean eastRoad, int leftWidth, int rightWidth, int totalWidth) {
