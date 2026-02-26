@@ -1,8 +1,8 @@
 {
   "type": "minecraft:crafting_shaped",
   "key": {
-    "G": {
-      "item": "minecraft:gray_concrete"
+    "A": {
+      "item": "yogmod:asphalt"
     },
 	"W": {
       "item": "minecraft:white_dye"
@@ -13,7 +13,7 @@
   },
   "pattern": [
     "WYW",
-    " G ",
+    " A ",
     "   "
   ],
   "result": {

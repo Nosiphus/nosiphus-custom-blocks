@@ -3,6 +3,6 @@
   "render_type": "minecraft:cutout",
   "textures": {
 		"paint": "nosiphuscustomblocks:block/road/odd_divider",
-		"particle": "minecraft:block/gray_concrete"
+		"particle": "yogmod:block/asphalt"
   }
 }

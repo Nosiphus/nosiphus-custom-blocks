@@ -15,6 +15,13 @@ authors="Nosiphus"
 description="Nosiphus Custom Blocks adds various random blocks to the game."
 
 [[dependencies.nosiphuscustomblocks]]
+modId="yogmod"
+mandatory=true
+versionRange="[2025.04.13,)"
+ordering="NONE"
+side="BOTH"
+
+[[dependencies.nosiphuscustomblocks]]
 modId="forge"
 mandatory=true
 versionRange="[47,)"

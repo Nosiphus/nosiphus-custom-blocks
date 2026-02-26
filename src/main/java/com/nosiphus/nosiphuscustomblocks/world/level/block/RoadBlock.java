@@ -67,7 +67,7 @@ public class RoadBlock extends Block {
 
     @Override
     public boolean propagatesSkylightDown(BlockState state, BlockGetter world, BlockPos pos) {
-        return true;
+        return state.getValue(SLOPE) != SlopeState.NONE;
     }
 
     @Override

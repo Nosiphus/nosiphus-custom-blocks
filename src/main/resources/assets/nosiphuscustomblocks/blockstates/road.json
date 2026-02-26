@@ -162,7 +162,5 @@
 	{ "when": { "slope": "straight_south", "texture": "single" }, "apply": { "model": "nosiphuscustomblocks:block/road/slope/single", "y": 180 } },
     { "when": { "slope": "straight_west", "texture": "single" },  "apply": { "model": "nosiphuscustomblocks:block/road/slope/single", "y": 270 } }
 	
-	
-	
   ]
 }
