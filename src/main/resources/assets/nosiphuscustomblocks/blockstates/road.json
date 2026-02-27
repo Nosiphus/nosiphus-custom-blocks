@@ -16,6 +16,11 @@
 	{ "when": { "axis": "z", "slope": "none", "texture": "crosswalk_single" }, "apply": { "model": "nosiphuscustomblocks:block/road/crosswalk_single", "y": 0 } },
 	{ "when": { "axis": "x", "slope": "none", "texture": "crosswalk_single" }, "apply": { "model": "nosiphuscustomblocks:block/road/crosswalk_single", "y": 90 } },
 	
+	{ "when": { "axis": "z", "slope": "none", "texture": "diagonal_divider_northeast_southwest" }, "apply": { "model": "nosiphuscustomblocks:block/road/diagonal_divider", "y": 0 } },
+	{ "when": { "axis": "x", "slope": "none", "texture": "diagonal_divider_northeast_southwest" }, "apply": { "model": "nosiphuscustomblocks:block/road/diagonal_divider", "y": 90 } },
+	{ "when": { "axis": "z", "slope": "none", "texture": "diagonal_divider_northwest_southeast" }, "apply": { "model": "nosiphuscustomblocks:block/road/diagonal_divider", "y": 180 } },
+	{ "when": { "axis": "x", "slope": "none", "texture": "diagonal_divider_northwest_southeast" }, "apply": { "model": "nosiphuscustomblocks:block/road/diagonal_divider", "y": 270 } },
+	
 	{ "when": { "axis": "z", "slope": "none", "texture": "even_divider_left" }, "apply": { "model": "nosiphuscustomblocks:block/road/even_divider", "y": 0 } },
 	{ "when": { "axis": "x", "slope": "none", "texture": "even_divider_left" }, "apply": { "model": "nosiphuscustomblocks:block/road/even_divider", "y": 90 } },
 	{ "when": { "axis": "z", "slope": "none", "texture": "even_divider_right" }, "apply": { "model": "nosiphuscustomblocks:block/road/even_divider", "y": 180 } },
