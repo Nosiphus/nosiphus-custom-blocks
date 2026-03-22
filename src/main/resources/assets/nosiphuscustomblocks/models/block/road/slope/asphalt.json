@@ -1,7 +1,0 @@
-{
-  "loader": "nosiphuscustomblocks:road_loader",
-  "textures": {
-    "paint": "yogmod:block/asphalt",
-    "particle": "yogmod:block/asphalt"
-  }
-}
