@@ -1,38 +1,35 @@
 package com.nosiphus.nosiphuscustomblocks;
 
+import com.mojang.logging.LogUtils;
 import com.nosiphus.nosiphuscustomblocks.world.item.ModCreativeModeTabs;
 import com.nosiphus.nosiphuscustomblocks.world.item.ModItems;
 import com.nosiphus.nosiphuscustomblocks.world.level.block.ModBlocks;
-import net.minecraft.world.item.DyeableLeatherItem;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.client.event.RegisterColorHandlersEvent;
-import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.eventbus.api.IEventBus;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
-import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
-import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import net.minecraft.core.component.DataComponents;
+import net.minecraft.world.item.component.DyedItemColor;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.bus.api.IEventBus;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.ModContainer;
+import net.neoforged.fml.common.EventBusSubscriber;
+import net.neoforged.fml.common.Mod;
+import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
+import net.neoforged.fml.event.lifecycle.FMLCommonSetupEvent;
+import net.neoforged.neoforge.client.event.RegisterColorHandlersEvent;
+import org.slf4j.Logger;
 
 @Mod("nosiphuscustomblocks")
 public class NosiphusCustomBlocks {
 
-    public static final Logger LOGGER = LogManager.getLogger();
-    public NosiphusCustomBlocks() {
-
-        IEventBus eventBus = FMLJavaModLoadingContext.get().getModEventBus();
+    private static final Logger LOGGER = LogUtils.getLogger();
+    public NosiphusCustomBlocks(IEventBus eventBus, ModContainer container) {
 
         ModBlocks.BLOCKS.register(eventBus);
         ModCreativeModeTabs.CREATIVE_TABS.register(eventBus);
         ModItems.ITEMS.register(eventBus);
 
-        MinecraftForge.EVENT_BUS.register(this);
-
     }
 
-    @Mod.EventBusSubscriber(modid = "nosiphuscustomblocks", bus = Mod.EventBusSubscriber.Bus.MOD, value = Dist.CLIENT)
+    @EventBusSubscriber(modid = "nosiphuscustomblocks", value = Dist.CLIENT)
     public static class ClientModEvents {
 
         @SubscribeEvent
@@ -42,14 +39,19 @@ public class NosiphusCustomBlocks {
 
         @SubscribeEvent
         public static void registerItemColors(RegisterColorHandlersEvent.Item event) {
-            event.register(((itemStack, i) ->
-                    i > 0 ? -1 : ((DyeableLeatherItem)itemStack.getItem()).getColor(itemStack)),
-                    ModItems.FEZ.get(), ModItems.BOW_TIE.get());
+            event.register((stack, tintIndex) -> {
+                if (tintIndex > 0) return -1;
+                DyedItemColor dyedColor = stack.get(DataComponents.DYED_COLOR);
+                if (dyedColor != null) {
+                    return 0xFF000000 | dyedColor.rgb();
+                }
+                return -1;
+            }, ModItems.BOW_TIE.get(), ModItems.FEZ.get());
         }
 
     }
 
-    @Mod.EventBusSubscriber(modid = "nosiphuscustomblocks", bus = Mod.EventBusSubscriber.Bus.MOD)
+    @EventBusSubscriber(modid = "nosiphuscustomblocks")
     public static class ModEvents {
 
         @SubscribeEvent

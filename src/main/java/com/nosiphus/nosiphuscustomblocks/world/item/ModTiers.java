@@ -1,21 +1,25 @@
 package com.nosiphus.nosiphuscustomblocks.world.item;
 
+import net.minecraft.tags.BlockTags;
+import net.minecraft.tags.TagKey;
 import net.minecraft.util.LazyLoadedValue;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.Tier;
 import net.minecraft.world.item.crafting.Ingredient;
+import net.minecraft.world.level.block.Block;
 
 import java.util.function.Supplier;
 
 public enum ModTiers implements Tier {
 
-    BLUE_SONIC_SCREWDRIVER(3, 1561, 8.0F, 3.0F, 10, () -> {
+    BLUE_SONIC_SCREWDRIVER(BlockTags.INCORRECT_FOR_DIAMOND_TOOL, 3, 1561, 8.0F, 3.0F, 10, () -> {
         return Ingredient.of(Items.DIAMOND);
     }),
-    GREEN_SONIC_SCREWDRIVER(3, 1561, 8.0F, 3.0F, 10, () -> {
+    GREEN_SONIC_SCREWDRIVER(BlockTags.INCORRECT_FOR_DIAMOND_TOOL, 3, 1561, 8.0F, 3.0F, 10, () -> {
         return Ingredient.of(Items.EMERALD);
     });
 
+    private final TagKey<Block> incorrectBlocksForDrops;
     private final int level;
     private final int uses;
     private final float speed;
@@ -23,7 +27,8 @@ public enum ModTiers implements Tier {
     private final int enchantmentValue;
     private final LazyLoadedValue<Ingredient> repairIngredient;
 
-    private ModTiers(int level, int uses, float speed, float damage, int enchantmentValue, Supplier<Ingredient> repairIngredient) {
+    private ModTiers(TagKey<Block> incorrectBlockForDrops, int level, int uses, float speed, float damage, int enchantmentValue, Supplier<Ingredient> repairIngredient) {
+        this.incorrectBlocksForDrops = incorrectBlockForDrops;
         this.level = level;
         this.uses = uses;
         this.speed = speed;
@@ -42,6 +47,11 @@ public enum ModTiers implements Tier {
 
     public float getAttackDamageBonus() {
         return this.damage;
+    }
+
+    @Override
+    public TagKey<Block> getIncorrectBlocksForDrops() {
+        return this.incorrectBlocksForDrops;
     }
 
     public int getLevel() {

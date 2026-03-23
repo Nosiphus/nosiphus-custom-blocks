@@ -1,0 +1,7 @@
+{
+  "replace": false,
+  "values": [
+	{ "id": "nosiphuscustomblocks:bow_tie", "required": false },
+    { "id": "nosiphuscustomblocks:fez", "required": false }
+  ]
+}
