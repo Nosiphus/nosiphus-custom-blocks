@@ -1,6 +1,13 @@
 {
-	"pack": {
-		"pack_format": 15,
-		"description": "PureBDcraft Patch for Nosiphus Custom Blocks"
-	}
+  "pack": {
+    "description": "PureBDcraft Patch for Nosiphus Custom Blocks",
+    "pack_format": 34,
+    "min_format": 34,
+    "max_format": 75,
+    "supported_formats": {
+      "min_inclusive": 34,
+      "max_inclusive": 75
+    }
+  }
 }
+
