@@ -1,6 +1,7 @@
 plugins {
     id 'multiloader-loader'
     id 'net.neoforged.moddev'
+    id 'me.modmuss50.mod-publish-plugin' version '0.5.1'
 }
 
 dependencies {
@@ -46,3 +47,19 @@ neoForge {
 }
 
 sourceSets.main.resources { srcDir 'src/generated/resources' }
+
+publishMods {
+    file = tasks.jar.archiveFile
+
+    changelog = providers.environmentVariable("RELEASE_CHANGELOG").orElse("No changelog provided.")
+    type = STABLE
+
+    curseforge {
+        accessToken = providers.environmentVariable("CURSEFORGE_TOKEN")
+        projectId = "1201454"
+        minecraftVersions.add("1.21.1")
+        clientRequired = true
+        serverRequired = true
+        modLoaders.add("neoforge")
+    }
+}

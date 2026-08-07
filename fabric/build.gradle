@@ -1,6 +1,7 @@
 plugins {
     id 'multiloader-loader'
     id 'fabric-loom'
+    id 'me.modmuss50.mod-publish-plugin' version '0.5.1'
 }
 dependencies {
     minecraft "com.mojang:minecraft:${minecraft_version}"
@@ -33,5 +34,21 @@ loom {
             ideConfigGenerated(true)
             runDir('runs/server')
         }
+    }
+}
+
+publishMods {
+    file = tasks.remapJar.archiveFile
+
+    changelog = providers.environmentVariable("RELEASE_CHANGELOG").orElse("No changelog provided.")
+    type = STABLE
+
+    curseforge {
+        accessToken = providers.environmentVariable("CURSEFORGE_TOKEN")
+        projectId = "1201454"
+        minecraftVersions.add("1.21.1")
+        clientRequired = true
+        serverRequired = true
+        modLoaders.add("fabric")
     }
 }
