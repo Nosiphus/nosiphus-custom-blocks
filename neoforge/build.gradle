@@ -61,5 +61,9 @@ publishMods {
         clientRequired = true
         serverRequired = true
         modLoaders.add("neoforge")
+
+        optional {
+            slug = "372408"
+        }
     }
 }
