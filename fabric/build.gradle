@@ -51,6 +51,6 @@ publishMods {
         serverRequired = true
         modLoaders.add("fabric")
 
-        displayName = "Fabric - ${project.version}"
+        displayName = "Fabric - ${project.version} - ${minecraftVersion}"
     }
 }
