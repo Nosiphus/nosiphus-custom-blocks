@@ -63,7 +63,7 @@ publishMods {
         modLoaders.add("neoforge")
 
         optional {
-            slug = "372408"
+            slug = "yogmod"
         }
     }
 }
