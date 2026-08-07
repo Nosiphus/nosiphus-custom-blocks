@@ -50,5 +50,7 @@ publishMods {
         clientRequired = true
         serverRequired = true
         modLoaders.add("fabric")
+
+        displayName = "Fabric - ${project.version}"
     }
 }

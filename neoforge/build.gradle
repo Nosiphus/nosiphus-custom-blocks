@@ -62,6 +62,8 @@ publishMods {
         serverRequired = true
         modLoaders.add("neoforge")
 
+        displayName = "NeoForge - ${project.version}"
+
         optional {
             slug = "yogmod"
         }
