@@ -41,12 +41,8 @@ public class ModBlocks {
             () -> new SlabBlock(BlockBehaviour.Properties.ofFullCopy(Blocks.STONE_SLAB)));
 
     // Ceiling Lights
-    /*
     public static final Supplier<Block> FLUORESCENT_PANEL_CEILING_LIGHT = registerOptional("yogmod", "fluorescent_panel_ceiling_light",
             () -> new CeilingLightBlock(BlockBehaviour.Properties.ofFullCopy(com.nosiphus.yogmod.world.level.block.ModBlocks.FLUORESCENT_PANEL.get())));
-     */
-    public static final Supplier<Block> FLUORESCENT_PANEL_CEILING_LIGHT = registerOptional("yogmod", "fluorescent_panel_ceiling_light",
-            () -> new CeilingLightBlock(BlockBehaviour.Properties.ofFullCopy(Blocks.GLOWSTONE)));
     public static final Supplier<Block> GLOWSTONE_CEILING_LIGHT = register("glowstone_ceiling_light",
             () -> new CeilingLightBlock(BlockBehaviour.Properties.ofFullCopy(Blocks.GLOWSTONE)));
     public static final Supplier<Block> SEA_LANTERN_CEILING_LIGHT = register("sea_lantern_ceiling_light",

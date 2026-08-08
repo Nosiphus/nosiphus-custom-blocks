@@ -5,7 +5,7 @@ plugins {
 }
 
 dependencies {
-    implementation "curse.maven:yogmod-372408:7881763"
+    implementation "curse.maven:yogmod-372408:8599632"
 }
 
 neoForge {

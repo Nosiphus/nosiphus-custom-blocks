@@ -11,6 +11,8 @@ dependencies {
     }
     modImplementation "net.fabricmc:fabric-loader:${fabric_loader_version}"
     modImplementation "net.fabricmc.fabric-api:fabric-api:${fabric_version}"
+
+    modImplementation "curse.maven:yogmod-372408:8599633"
 }
 
 loom {
@@ -52,6 +54,10 @@ publishMods {
         modLoaders.add("fabric")
 
         displayName = "Fabric - ${project.version} - ${project.minecraft_version}"
+
+        optional {
+            slug = "yogmod"
+        }
     }
 }
 
