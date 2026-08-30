@@ -71,9 +71,9 @@ publishMods {
         minecraftVersions.add("1.20.1")
         clientRequired = true
         serverRequired = true
-        modLoaders.add("neoforge")
+        modLoaders.add("forge")
 
-        displayName = "NeoForge - ${project.version} - ${project.minecraft_version}"
+        displayName = "Forge - ${project.version} - ${project.minecraft_version}"
 
         optional {
             slug = "yogmod"
@@ -82,13 +82,13 @@ publishMods {
 }
 
 tasks.named('jar') {
-    archiveFileName = "${project.mod_id}-neoforge-${project.version}-${project.minecraft_version}.jar"
+    archiveFileName = "${project.mod_id}-forge-${project.version}-${project.minecraft_version}.jar"
 }
 
 tasks.named('sourcesJar') {
-    archiveFileName = "${project.mod_id}-neoforge-${project.version}-${project.minecraft_version}-sources.jar"
+    archiveFileName = "${project.mod_id}-forge-${project.version}-${project.minecraft_version}-sources.jar"
 }
 
 tasks.named('javadocJar') {
-    archiveFileName = "${project.mod_id}-neoforge-${project.version}-${project.minecraft_version}-javadoc.jar"
+    archiveFileName = "${project.mod_id}-forge-${project.version}-${project.minecraft_version}-javadoc.jar"
 }
