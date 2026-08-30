@@ -36,7 +36,7 @@ jobs:
       - name: Upload build artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: nosiphus-custom-blocks-builds
+          name: nosiphus-custom-blocks
           path: |
             fabric/build/libs/*.jar
             forge/build/libs/*.jar
