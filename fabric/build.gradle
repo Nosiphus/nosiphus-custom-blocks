@@ -1,0 +1,75 @@
+plugins {
+    id 'multiloader-loader'
+    id 'fabric-loom'
+	id 'me.modmuss50.mod-publish-plugin' version '0.5.1'
+}
+dependencies {
+    minecraft "com.mojang:minecraft:${minecraft_version}"
+    mappings loom.layered {
+        officialMojangMappings()
+        parchment("org.parchmentmc.data:parchment-${parchment_minecraft}:${parchment_version}@zip")
+    }
+    modImplementation "net.fabricmc:fabric-loader:${fabric_loader_version}"
+    modImplementation "net.fabricmc.fabric-api:fabric-api:${fabric_version}"
+    implementation group: 'com.google.code.findbugs', name: 'jsr305', version: '3.0.1'
+    implementation project(":common")
+	
+	//modImplementation "curse.maven:yogmod-372408:8599633"
+}
+
+loom {
+    if (project(":common").file("src/main/resources/${mod_id}.accesswidener").exists()) {
+        accessWidenerPath.set(project(":common").file("src/main/resources/${mod_id}.accesswidener"))
+    }
+    mixin {
+        defaultRefmapName.set("${mod_id}.refmap.json")
+    }
+    runs {
+        client {
+            client()
+            setConfigName("Fabric Client")
+            ideConfigGenerated(true)
+            runDir("run")
+        }
+        server {
+            server()
+            setConfigName("Fabric Server")
+            ideConfigGenerated(true)
+            runDir("run")
+        }
+    }
+}
+
+publishMods {
+    file = tasks.remapJar.archiveFile
+
+    changelog = providers.environmentVariable("RELEASE_CHANGELOG").orElse("No changelog provided.")
+    type = STABLE
+
+    curseforge {
+        accessToken = providers.environmentVariable("CURSEFORGE_TOKEN")
+        projectId = "1201454"
+        minecraftVersions.add("1.20.1")
+        clientRequired = true
+        serverRequired = true
+        modLoaders.add("fabric")
+
+        displayName = "Fabric - ${project.version} - ${project.minecraft_version}"
+
+        optional {
+            slug = "yogmod"
+        }
+    }
+}
+
+tasks.named('remapJar') {
+    archiveFileName = "${project.mod_id}-fabric-${project.version}-${project.minecraft_version}.jar"
+}
+
+tasks.named('remapSourcesJar') {
+    archiveFileName = "${project.mod_id}-fabric-${project.version}-${project.minecraft_version}-sources.jar"
+}
+
+tasks.named('javadocJar') {
+    archiveFileName = "${project.mod_id}-fabric-${project.version}-${project.minecraft_version}-javadoc.jar"
+}
