@@ -16,7 +16,7 @@ minecraft {
 
     runs {
         client {
-            workingDirectory project.file('run')
+            workingDirectory project.file('runs/client')
             ideaModule "${rootProject.name}.${project.name}.main"
             property 'forge.logging.markers', 'REGISTRIES'
             property 'forge.logging.console.level', 'debug'
@@ -27,7 +27,7 @@ minecraft {
             }
         }
         server {
-            workingDirectory project.file('run/server')
+            workingDirectory project.file('runs/server')
             ideaModule "${rootProject.name}.${project.name}.main"
             property 'forge.logging.markers', 'REGISTRIES'
             property 'forge.logging.console.level', 'debug'
@@ -38,7 +38,7 @@ minecraft {
             }
         }
         data {
-            workingDirectory project.file('run')
+            workingDirectory project.file('runs')
             ideaModule "${rootProject.name}.${project.name}.main"
             args '--mod', project.mod_id, '--all', '--output', file('src/generated/resources/').getAbsolutePath(), '--existing', file('src/main/resources/').getAbsolutePath()
             mods {
