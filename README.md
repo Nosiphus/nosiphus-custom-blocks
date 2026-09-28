@@ -2,10 +2,10 @@
 
 This mod adds an assortment of random blocks and items you can use to decorate your world such as colored planks, clothing, and more!
 
-# Brief Content Overview
+## Brief Content Overview
 Nosiphus Custom Blocks adds various blocks and items you can use for decoration. It has no primary overarching theme, but mainly consists of blocks that we use on our own server. There will be blocks that don't make much sense outside of that context, but it also has plenty of blocks that everyone will enjoy using. NCB implements several features from the [TARDIM Texture Pack](https://www.planetminecraft.com/project/tardim---time-and-relative-dimension-in-minecraft/) by UnlimitedMind42, something we enjoyed years ago.
 
-# Current Features
+## Current Features
 ### Armor
 Fully dyeable versions of the bow ties and fezzes from the [TARDIM Texture Pack](https://www.planetminecraft.com/project/tardim---time-and-relative-dimension-in-minecraft/) by UnlimitedMind42. Textures used with permission.
 
@@ -38,12 +38,12 @@ Tenth and Eleventh Doctor variants of the sonic screwdriver, which currently wor
 
 <img width="380" height="200" alt="Sonic screwdrivers" src="https://github.com/user-attachments/assets/7b9cf95a-207c-4002-b8f9-fee14b471485" />
 
-# Sphax PureBDcraft
+## Sphax PureBDcraft
 We have been users of the [Sphax PureBDcraft](https://www.bdcraft.net) resource pack since its heyday in 2013, and still maintain a set of modded textures for it, which you can obtain [here](https://bdcraft.net/community/viewtopic.php?t=9850).
 
 <img width="380" height="200" alt="Sphax PureBDcraft" src="https://github.com/user-attachments/assets/cecff387-304c-448d-9e5a-55d92e566504" />
 
-# Credits
+## Credits
 ### Code
 windowsxprules1
 
