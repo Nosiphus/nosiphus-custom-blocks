@@ -20,6 +20,9 @@ Custard and fish fingers from the [TARDIM Texture Pack](https://www.planetminecr
 ### Weapons
 Tenth and Eleventh Doctor variants of the sonic screwdriver, which currently work just as swords, from the [TARDIM Texture Pack](https://www.planetminecraft.com/project/tardim---time-and-relative-dimension-in-minecraft/) by UnlimitedMind42. Textures used with permission.
 
+# Sphax PureBDcraft
+We have been users of the [Sphax PureBDcraft](https://www.bdcraft.net) resource pack since its heyday in 2013, and still maintain a set of modded textures for it, which you can obtain [here](https://bdcraft.net/community/viewtopic.php?t=9850).
+
 # Credits
 ### Code
 windowsxprules1
